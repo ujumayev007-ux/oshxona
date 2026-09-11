@@ -17,7 +17,6 @@
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans min-h-screen">
-
     <!-- HEADER -->
     <header class="bg-slate-900 text-white p-4 shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
@@ -33,9 +32,7 @@
             </div>
         </div>
     </header>
-
     <main class="max-w-7xl mx-auto p-4 md:p-6">
-
         <!-- 1. MIJOZ PANELI -->
         <section id="customerPage" class="page active">
             <div class="flex gap-2 overflow-x-auto pb-4 mb-4 border-b border-gray-200">
@@ -46,7 +43,6 @@
             </div>
             <div id="customerMenuContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
         </section>
-
         <!-- 2. OFITSIANT PANELI -->
         <section id="waiterPage" class="page">
             <div class="mb-8">
@@ -55,7 +51,6 @@
                 </h3>
                 <div id="tablesContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"></div>
             </div>
-
             <div class="bg-white p-4 rounded-2xl shadow-md mb-6 flex flex-wrap gap-4 items-center justify-between border border-blue-100">
                 <div class="flex items-center gap-4 flex-wrap">
                     <div class="bg-blue-50 border border-blue-200 px-4 py-2 rounded-xl">
@@ -79,13 +74,11 @@
                     </button>
                 </div>
             </div>
-
             <div id="cartDetails" class="bg-blue-50 border border-blue-200 p-4 rounded-2xl mb-6 hidden">
                 <h4 class="font-bold text-blue-900 mb-2">Tanlangan taomlar:</h4>
                 <div id="cartItemsList" class="flex flex-wrap gap-2 mb-2"></div>
                 <div class="text-right font-extrabold text-blue-900 text-lg">Jami summasi: <span id="cartTotalSum">0</span> so'm</div>
             </div>
-
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="lg:col-span-2">
                     <h3 class="font-bold text-lg mb-3 text-slate-800">Menyudan taom qo'shish:</h3>
@@ -97,7 +90,6 @@
                 </div>
             </div>
         </section>
-
         <!-- 3. ADMIN PANELI -->
         <section id="adminPage" class="page">
             <!-- STATISTIKA VA FINANS KARTALARI -->
@@ -106,22 +98,18 @@
                     <span class="text-xs text-gray-500 font-bold block">JAMI TUSHUM <i class="fa-solid fa-circle-info text-blue-400"></i></span>
                     <span id="statTotalRev" class="text-lg font-black text-blue-600">0 so'm</span>
                 </div>
-
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-green-200 bg-green-50/30 text-center">
                     <span class="text-xs text-green-700 font-bold block">SOF FOYDA <i class="fa-solid fa-chart-line ml-1"></i></span>
                     <span id="statNetProfit" class="text-lg font-black text-green-600">0 so'm</span>
                 </div>
-
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 text-center">
                     <span class="text-xs text-gray-500 font-bold block">BAND STOLLAR</span>
                     <span id="statTablesCount" class="text-xl font-black text-purple-600">0 ta</span>
                 </div>
-
                 <div onclick="openModal('mahsulotModal')" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md transition">
                     <span class="text-xs text-gray-500 font-bold block">SOTILGAN MAHSULOT <i class="fa-solid fa-circle-info text-blue-400"></i></span>
                     <span id="statItemsSold" class="text-xl font-black text-orange-600">0 ta</span>
                 </div>
-
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 text-center col-span-2 md:col-span-1">
                     <span class="text-xs text-gray-500 font-bold block">TO'LOV TURLARI</span>
                     <div class="text-[11px] text-left mt-1 font-bold">
@@ -131,20 +119,17 @@
                     </div>
                 </div>
             </div>
-
             <!-- ADMIN TABLARI -->
             <div class="flex gap-4 border-b mb-6 overflow-x-auto">
                 <button onclick="switchAdminTab('ordersNav')" id="tabOrdersBtn" class="py-2 px-4 border-b-2 border-blue-600 font-bold text-blue-600 whitespace-nowrap">Buyurtmalar va Kassa</button>
                 <button onclick="switchAdminTab('menuManage')" id="tabMenuBtn" class="py-2 px-4 font-bold text-gray-500 whitespace-nowrap">Menyu va Tannarx</button>
                 <button onclick="switchAdminTab('warehouseManage')" id="tabWarehouseBtn" class="py-2 px-4 font-bold text-gray-500 whitespace-nowrap">📦 Omborxona va Statistika</button>
             </div>
-
             <!-- 1. BUYURTMALAR TABI -->
             <div id="ordersNavTab">
                 <h3 class="text-xl font-bold mb-4">Barcha buyurtmalar, Ofitsiantlar va To'lovlar</h3>
                 <div id="adminOrdersContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
             </div>
-
             <!-- 2. MENYU VA TANNARXNI BOSHQARISH -->
             <div id="menuManageTab" class="hidden">
                 <div class="bg-white p-6 rounded-2xl shadow-md mb-8 border border-gray-100">
@@ -166,7 +151,6 @@
                         </div>
                     </form>
                 </div>
-
                 <div class="bg-white rounded-2xl shadow-md overflow-hidden border border-gray-100">
                     <table class="w-full text-left border-collapse text-xs md:text-sm">
                         <thead class="bg-slate-100">
@@ -184,7 +168,6 @@
                     </table>
                 </div>
             </div>
-
             <!-- 3. OMBORXONA TABI -->
             <div id="warehouseManageTab" class="hidden">
                 <div class="bg-white p-6 rounded-2xl shadow-md mb-8 border border-gray-100">
@@ -196,7 +179,6 @@
                         <input type="text" id="warehouseSearchInput" placeholder="Mahsulot nomini yozib qidiring (masalan: Guruch, Cola)..." oninput="handleWarehouseSearchInput(this.value)" class="w-full p-3 border rounded-xl text-sm bg-blue-50/30">
                         <div id="warehouseSearchResults" class="absolute left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg mt-1 max-h-48 overflow-y-auto z-20 hidden"></div>
                     </div>
-
                     <form onsubmit="saveIngredient(event)" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                         <input type="hidden" id="editIngId">
                         <input type="text" id="ingName" placeholder="Nomi" required class="p-2.5 border rounded-xl text-sm" readonly>
@@ -220,7 +202,6 @@
                         ⚠️ Omborda bu nomdagi mahsulot topilmadi. Ma'lumotlarni to'ldirib saqlasangiz, <b>yangi mahsulot</b> sifatida qo'shiladi.
                     </div>
                 </div>
-
                 <!-- EXPORT TUGMALARI VA STATISTIKA -->
                 <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
                     <h4 class="font-bold text-lg text-slate-800">Omborxona qoldiqlari va sarflanish tarixi</h4>
@@ -230,7 +211,6 @@
                         <button onclick="exportWarehouseData('pdf')" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2 rounded-xl shadow"><i class="fa-solid fa-file-pdf mr-1"></i> PDF / Chop etish</button>
                     </div>
                 </div>
-
                 <div id="warehousePrintArea" class="bg-white rounded-2xl shadow-md overflow-hidden border border-gray-100 mb-8">
                     <table class="w-full text-left border-collapse text-xs md:text-sm">
                         <thead class="bg-slate-100">
@@ -246,7 +226,6 @@
                         <tbody id="warehouseTable" class="divide-y"></tbody>
                     </table>
                 </div>
-
                 <!-- SARFLANISH VA SOTUV TARIXI STATISTIKASI -->
                 <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
                     <h4 class="font-bold text-lg mb-4 text-slate-800">Tovar va Ovqatlar Sarflanishi (Kirim-Chiqim tarixi)</h4>
@@ -265,9 +244,7 @@
                 </div>
             </div>
         </section>
-
     </main>
-
     <!-- MODAL 1: TUSHUM VA FOYDA (WORD, EXCEL, PDF EXPORT BILAN) -->
     <div id="tushumModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex justify-center items-center z-50">
         <div class="bg-white p-6 rounded-3xl shadow-2xl w-full max-w-3xl relative">
@@ -299,7 +276,6 @@
             </div>
         </div>
     </div>
-
     <!-- MODAL 2: SOTILGAN MAHSULOT (WORD, EXCEL, PDF EXPORT BILAN) -->
     <div id="mahsulotModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex justify-center items-center z-50">
         <div class="bg-white p-6 rounded-3xl shadow-2xl w-full max-w-3xl relative">
@@ -330,7 +306,6 @@
             </div>
         </div>
     </div>
-
     <!-- ADMIN TO'LOV MODAL -->
     <div id="paymentModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex justify-center items-center z-50">
         <div class="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-md relative">
@@ -338,23 +313,19 @@
             <h3 class="text-xl font-extrabold mb-4 text-slate-800">To'lovni tasdiqlash</h3>
             <p class="text-sm text-gray-600 mb-2">Buyurtma: <b id="payModalOrderId" class="text-blue-600"></b></p>
             <p class="text-xl font-black text-green-600 mb-6">To'lov summasi: <span id="payModalTotal"></span> so'm</p>
-
             <input type="hidden" id="payModalOrderRealId">
             <input type="hidden" id="payModalTableId">
-
             <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">To'lov turini tanlang:</label>
             <div class="grid grid-cols-3 gap-3 mb-6">
                 <button type="button" onclick="selectPayType('Naqd')" id="payTypeCash" class="pay-type-btn p-3 rounded-xl border-2 font-bold text-xs border-green-600 bg-green-50 text-green-700">Naqd</button>
                 <button type="button" onclick="selectPayType('Plastik')" id="payTypeCard" class="pay-type-btn p-3 rounded-xl border-2 font-bold text-xs border-gray-200 text-gray-600">Plastik</button>
                 <button type="button" onclick="selectPayType('O\'tkazma')" id="payTypeTransfer" class="pay-type-btn p-3 rounded-xl border-2 font-bold text-xs border-gray-200 text-gray-600">O'tkazma</button>
             </div>
-
             <button onclick="confirmPayment()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold p-3 rounded-xl transition">
                 To'lovni qabul qilish va Stolni bo'shatish
             </button>
         </div>
     </div>
-
     <!-- LOGIN MODAL -->
     <div id="loginModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex justify-center items-center z-50">
         <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md relative">
@@ -373,7 +344,6 @@
             </form>
         </div>
     </div>
-
     <script>
         const defaultMenu = [
             { id: 1, name: "Osh", category: "taom", cost: 30000, price: 40000, img: "https://images.unsplash.com/photo-1633964913295-ceb43826e7c9?auto=format&fit=crop&w=500&q=80" },
@@ -391,7 +361,6 @@
             { id: 13, name: "Qora choy", category: "ichimlik", cost: 3000, price: 5000, img: "https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=500&q=80" },
             { id: 14, name: "Ko'k choy", category: "ichimlik", cost: 3000, price: 5000, img: "https://images.unsplash.com/photo-1597481499750-3e6b22637e12?auto=format&fit=crop&w=500&q=80" }
         ];
-
         const defaultWarehouse = [
             { id: 1, name: "Guruch", amount: 50000, unit: "gram", cost: 5000, img: "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=200&q=80" },
             { id: 2, name: "Go'sht", amount: 30000, unit: "gram", cost: 70000, img: "https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?auto=format&fit=crop&w=200&q=80" },
@@ -401,7 +370,6 @@
             { id: 6, name: "Coca-Cola 1L", amount: 50, unit: "dona", cost: 8000, img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=200&q=80" },
             { id: 7, name: "Suv 0.5L", amount: 30, unit: "dona", cost: 2000, img: "https://images.unsplash.com/photo-1548839140-29a749e1cf4d?auto=format&fit=crop&w=200&q=80" }
         ];
-
         const dishRecipes = {
             "Osh": { "Guruch": 250, "Go'sht": 200, "Sabzi": 300, "Yog'": 50, "Piyoz": 50 },
             "Chuchvara": { "Go'sht": 150, "Piyoz": 80 },
@@ -416,7 +384,6 @@
             "Gretskiy salat": { "Piyoz": 20 },
             "Coca-Cola 1L": { "Coca-Cola 1L": 1 },
         };
-
         const MENU_VERSION = "v17.0_azamat_umid_restaurant";
         if (localStorage.getItem('resto_version_check') !== MENU_VERSION) {
             localStorage.setItem('resto_menu', JSON.stringify(defaultMenu));
@@ -424,18 +391,16 @@
             localStorage.setItem('resto_consumption_log', JSON.stringify([]));
             localStorage.setItem('resto_version_check', MENU_VERSION);
         }
-
         let menuData = JSON.parse(localStorage.getItem('resto_menu')) || defaultMenu;
         let warehouseData = JSON.parse(localStorage.getItem('resto_warehouse')) || defaultWarehouse;
         let consumptionLog = JSON.parse(localStorage.getItem('resto_consumption_log')) || [];
         let tablesData = JSON.parse(localStorage.getItem('resto_tables')) || Array.from({ length: 12 }, (_, i) => ({ id: i + 1, guests: (i % 4) + 2, status: 'bo\'sh' }));
         let ordersData = JSON.parse(localStorage.getItem('resto_orders')) || [];
-
         let selectedTableId = 1;
         let selectedPayTypeVal = 'Naqd';
         let cart = [];
-        let currentUserRole = 'customer';
-        let currentWaiterName = '';
+        let currentUserRole = localStorage.getItem('resto_user_role') || 'customer';
+        let currentWaiterName = localStorage.getItem('resto_waiter_name') || '';
 
         document.addEventListener('DOMContentLoaded', () => {
             renderCustomerMenu('all');
@@ -446,6 +411,9 @@
             renderWarehouse();
             renderConsumptionLog();
             updateStats();
+
+            // Sahifa yuklanganda saqlangan rol bo'yicha sahifani ochish
+            navigateRole(currentUserRole, currentWaiterName);
         });
 
         // 1. STOLGA MIJOZ QO'SHISH (PLUS / MINUS)
@@ -458,13 +426,11 @@
             localStorage.setItem('resto_tables', JSON.stringify(tablesData));
             renderTables(false);
         }
-
         // OMBORXONA BOSHQARUVI VA QIDIRIB QO'SHISH / YANGI QO'SHISH
         function renderWarehouse() {
             const tbody = document.getElementById('warehouseTable');
             if (!tbody) return;
             tbody.innerHTML = '';
-
             warehouseData.forEach(item => {
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 border-b">
@@ -485,7 +451,6 @@
                 `;
             });
         }
-
         function handleWarehouseSearchInput(query) {
             const resultsContainer = document.getElementById('warehouseSearchResults');
             const noticeBox = document.getElementById('newProductNotice');
@@ -498,9 +463,7 @@
                 nameInput.value = '';
                 return;
             }
-
             const matched = warehouseData.filter(i => i.name.toLowerCase().includes(query.toLowerCase()));
-
             if (matched.length > 0) {
                 resultsContainer.classList.remove('hidden');
                 noticeBox.classList.add('hidden');
@@ -517,7 +480,6 @@
                 nameInput.value = query; // Yangi mahsulot nomi sifatida avtomatik yoziladi
             }
         }
-
         function selectWarehouseExistingItem(item) {
             document.getElementById('warehouseSearchInput').value = item.name;
             document.getElementById('ingName').value = item.name;
@@ -533,7 +495,6 @@
             document.getElementById('saveIngBtn').innerText = "Miqdorini qo'shish";
             document.getElementById('cancelIngEditBtn').classList.remove('hidden');
         }
-
         function saveIngredient(e) {
             e.preventDefault();
             const editId = document.getElementById('editIngId').value;
@@ -543,12 +504,10 @@
             const unit = document.getElementById('ingUnit').value;
             const cost = parseFloat(document.getElementById('ingCost').value) || 0;
             const img = document.getElementById('ingImg').value || "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=200&q=80";
-
             if (!name) {
                 alert("Mahsulot nomini kiriting!");
                 return;
             }
-
             if (editId) {
                 warehouseData = warehouseData.map(i => i.id == editId ? { ...i, name, amount: i.amount + amount, unit, cost, img } : i);
             } else {
@@ -561,17 +520,14 @@
                     warehouseData.push({ id: Date.now(), name, amount, unit, cost, img });
                 }
             }
-
             localStorage.setItem('resto_warehouse', JSON.stringify(warehouseData));
             resetWarehouseForm();
             renderWarehouse();
             alert("Omborxona muvaffaqiyatli saqlandi!");
         }
-
         function editWarehouseItem(id) {
             const item = warehouseData.find(i => i.id === id);
             if (!item) return;
-
             document.getElementById('editIngId').value = item.id;
             document.getElementById('warehouseSearchInput').value = item.name;
             document.getElementById('ingName').value = item.name;
@@ -579,12 +535,10 @@
             document.getElementById('ingUnit').value = item.unit;
             document.getElementById('ingCost').value = item.cost || 0;
             document.getElementById('ingImg').value = item.img;
-
             document.getElementById('warehouseFormTitle').innerText = "Ombor mahsulotini tahrirlash";
             document.getElementById('saveIngBtn').innerText = "Yangilash";
             document.getElementById('cancelIngEditBtn').classList.remove('hidden');
         }
-
         function resetWarehouseForm() {
             document.getElementById('editIngId').value = '';
             document.getElementById('warehouseSearchInput').value = '';
@@ -598,7 +552,6 @@
             document.getElementById('saveIngBtn').innerText = "Saqlash";
             document.getElementById('cancelIngEditBtn').classList.add('hidden');
         }
-
         function deleteWarehouseItem(id) {
             if (confirm("Mahsulotni ombordan o'chirmoqchimisiz?")) {
                 warehouseData = warehouseData.filter(i => i.id !== id);
@@ -606,18 +559,15 @@
                 renderWarehouse();
             }
         }
-
         // SARFLANISH LOGLARI (STATISTIKA)
         function renderConsumptionLog() {
             const tbody = document.getElementById('consumptionLogTable');
             if (!tbody) return;
             tbody.innerHTML = '';
-
             if (consumptionLog.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-gray-400">Hozircha sarflanish tarixi mavjud emas.</td></tr>`;
                 return;
             }
-
             consumptionLog.forEach(log => {
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 border-b">
@@ -628,7 +578,6 @@
                 `;
             });
         }
-
         // EXPORT FUNKSIYALARI (EXCEL, WORD, PDF)
         function exportWarehouseData(type) {
             if (type === 'excel') {
@@ -652,12 +601,10 @@
                 window.print();
             }
         }
-
         // 2. ADMIN PANELIDAGI TUSHUM VA FOYDALARNI WORD, EXCEL, PDF GA CHOP ETISH
         function exportReportData(type, reportType) {
             let tableId = reportType === 'tushum' ? 'tushumReportTable' : 'mahsulotReportTable';
             let fileName = reportType === 'tushum' ? 'tushum_va_foyda_hisoboti' : 'sotilgan_mahsulotlar_analitikasi';
-
             if (type === 'excel') {
                 let table = document.getElementById(tableId);
                 let html = table.outerHTML;
@@ -688,13 +635,11 @@
                 win.print();
             }
         }
-
         // TANNARX VA MENYU REJA
         function renderAdminMenu() {
             const table = document.getElementById('adminMenuTable');
             if(!table) return;
             table.innerHTML = '';
-
             menuData.forEach(item => {
                 const profit = item.price - (item.cost || 0);
                 table.innerHTML += `
@@ -717,7 +662,6 @@
                 `;
             });
         }
-
         function saveProduct(e) {
             e.preventDefault();
             const editId = document.getElementById('editProductId').value;
@@ -726,36 +670,30 @@
             const cost = parseFloat(document.getElementById('prodCost').value) || 0;
             const price = parseFloat(document.getElementById('prodPrice').value);
             const img = document.getElementById('prodImg').value;
-
             if (editId) {
                 menuData = menuData.map(p => p.id == editId ? { id: Number(editId), name, category, cost, price, img } : p);
             } else {
                 menuData.push({ id: Date.now(), name, category, cost, price, img });
             }
-
             localStorage.setItem('resto_menu', JSON.stringify(menuData));
             resetForm();
             renderAdminMenu();
             renderCustomerMenu('all');
             renderWaiterMenu();
         }
-
         function editProduct(id) {
             const prod = menuData.find(p => p.id === id);
             if (!prod) return;
-
             document.getElementById('editProductId').value = prod.id;
             document.getElementById('prodName').value = prod.name;
             document.getElementById('prodCategory').value = prod.category;
             document.getElementById('prodCost').value = prod.cost || 0;
             document.getElementById('prodPrice').value = prod.price;
             document.getElementById('prodImg').value = prod.img;
-
             document.getElementById('formTitle').innerText = "Taomni tahrirlash";
             document.getElementById('saveBtn').innerText = "Yangilash";
             document.getElementById('cancelEditBtn').classList.remove('hidden');
         }
-
         function resetForm() {
             document.getElementById('editProductId').value = '';
             document.getElementById('prodName').value = '';
@@ -766,7 +704,6 @@
             document.getElementById('saveBtn').innerText = "Saqlash";
             document.getElementById('cancelEditBtn').classList.add('hidden');
         }
-
         function deleteProduct(id) {
             if (confirm("Mahsulotni o'chirmoqchimisiz?")) {
                 menuData = menuData.filter(p => p.id !== id);
@@ -776,21 +713,17 @@
                 renderWaiterMenu();
             }
         }
-
         // TO'LOV VA OMBORDAN GRAMM/DONALARNI AYIRISH VA STATISTIKAGA YOZISH
         function confirmPayment() {
             const orderId = document.getElementById('payModalOrderRealId').value;
             const tableId = parseInt(document.getElementById('payModalTableId').value);
-
             const ord = ordersData.find(o => o.id === orderId);
             if(ord) {
                 ord.status = "To'landi";
                 ord.payType = selectedPayTypeVal;
-
                 ord.items.forEach(item => {
                     const recipe = dishRecipes[item.name];
                     let logDetailParts = [];
-
                     if (recipe) {
                         for (const [ingName, qtyNeeded] of Object.entries(recipe)) {
                             const warehouseItem = warehouseData.find(w => w.name.toLowerCase() === ingName.toLowerCase());
@@ -806,24 +739,19 @@
                             logDetailParts.push(`${item.name}: -1 dona`);
                         }
                     }
-
                     consumptionLog.unshift({
                         time: new Date().toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
                         dishName: item.name,
                         details: logDetailParts.join(', ') || "Sarflandi"
                     });
                 });
-
                 localStorage.setItem('resto_warehouse', JSON.stringify(warehouseData));
                 localStorage.setItem('resto_consumption_log', JSON.stringify(consumptionLog));
             }
-
             const tbl = tablesData.find(t => t.id === tableId);
             if(tbl) tbl.status = 'bo\'sh';
-
             localStorage.setItem('resto_orders', JSON.stringify(ordersData));
             localStorage.setItem('resto_tables', JSON.stringify(tablesData));
-
             closePaymentModal();
             renderTables();
             renderAdminOrders();
@@ -833,52 +761,41 @@
             updateStats();
             alert("To'lov qabul qilindi va omborxona zaxiralari avtomatik yangilandi!");
         }
-
         function updateStats() {
             const paidOrders = ordersData.filter(o => o.status === "To'landi");
-
             let totalRev = 0;
             let totalCost = 0;
-
             paidOrders.forEach(o => {
                 totalRev += o.total;
                 o.items.forEach(i => {
                     totalCost += (i.cost || 0);
                 });
             });
-
             const netProfit = totalRev - totalCost;
             const itemsSold = paidOrders.reduce((sum, o) => sum + o.items.length, 0);
             const tablesCount = tablesData.filter(t => t.status === 'band').length;
-
             let cashTotal = paidOrders.filter(o => o.payType === 'Naqd').reduce((s, o) => s + o.total, 0);
             let cardTotal = paidOrders.filter(o => o.payType === 'Plastik').reduce((s, o) => s + o.total, 0);
             let transferTotal = paidOrders.filter(o => o.payType === 'O\'tkazma').reduce((s, o) => s + o.total, 0);
-
             document.getElementById('statTotalRev').innerText = totalRev.toLocaleString() + " so'm";
             document.getElementById('statNetProfit').innerText = netProfit.toLocaleString() + " so'm";
             document.getElementById('statTablesCount').innerText = tablesCount + " ta";
             document.getElementById('statItemsSold').innerText = itemsSold + " ta";
-
             document.getElementById('statPayCash').innerText = cashTotal.toLocaleString() + " so'm";
             document.getElementById('statPayCard').innerText = cardTotal.toLocaleString() + " so'm";
             document.getElementById('statPayTransfer').innerText = transferTotal.toLocaleString() + " so'm";
         }
-
         function renderTushumModalDetails() {
             const tbody = document.getElementById('tushumModalTableBody');
             tbody.innerHTML = '';
             const paidOrders = ordersData.filter(o => o.status === "To'landi");
-
             if (paidOrders.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-400">To'lovlar mavjud emas.</td></tr>`;
                 return;
             }
-
             paidOrders.forEach(ord => {
                 const orderCost = ord.items.reduce((s, i) => s + (i.cost || 0), 0);
                 const orderProfit = ord.total - orderCost;
-
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 border-b">
                         <td class="p-2.5 font-bold text-gray-700">${ord.time}</td>
@@ -891,14 +808,11 @@
                 `;
             });
         }
-
         function renderMahsulotModalDetails() {
             const tbody = document.getElementById('mahsulotModalTableBody');
             tbody.innerHTML = '';
             const paidOrders = ordersData.filter(o => o.status === "To'landi");
-
             let productSummary = {};
-
             paidOrders.forEach(ord => {
                 ord.items.forEach(item => {
                     const cost = item.cost || 0;
@@ -915,13 +829,11 @@
                     }
                 });
             });
-
             const keys = Object.keys(productSummary);
             if (keys.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-400">Sotilgan mahsulotlar yo'q.</td></tr>`;
                 return;
             }
-
             keys.forEach(name => {
                 const prod = productSummary[name];
                 tbody.innerHTML += `
@@ -935,7 +847,6 @@
                 `;
             });
         }
-
         function openModal(id) {
             if(id === 'tushumModal') renderTushumModalDetails();
             if(id === 'mahsulotModal') renderMahsulotModalDetails();
@@ -962,11 +873,9 @@
             document.getElementById('ordersNavTab').classList.add('hidden');
             document.getElementById('menuManageTab').classList.add('hidden');
             document.getElementById('warehouseManageTab').classList.add('hidden');
-
             document.getElementById('tabOrdersBtn').className = "py-2 px-4 font-bold text-gray-500 whitespace-nowrap";
             document.getElementById('tabMenuBtn').className = "py-2 px-4 font-bold text-gray-500 whitespace-nowrap";
             document.getElementById('tabWarehouseBtn').className = "py-2 px-4 font-bold text-gray-500 whitespace-nowrap";
-
             if (tab === 'ordersNav') {
                 document.getElementById('ordersNavTab').classList.remove('hidden');
                 document.getElementById('tabOrdersBtn').className = "py-2 px-4 border-b-2 border-blue-600 font-bold text-blue-600 whitespace-nowrap";
@@ -981,11 +890,15 @@
         function navigateRole(role, waiterName = '') {
             currentUserRole = role;
             currentWaiterName = waiterName;
+
+            // Rolni va ofitsiant nomini xotiraga saqlab qo'yamiz (F5 bosganda yo'qolmasligi uchun)
+            localStorage.setItem('resto_user_role', role);
+            localStorage.setItem('resto_waiter_name', waiterName);
+
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             const badge = document.getElementById('roleBadge');
             const authBtn = document.getElementById('authBtn');
             const waiterLabel = document.getElementById('activeWaiterName');
-
             if (role === 'customer') {
                 document.getElementById('customerPage').classList.add('active');
                 badge.innerText = "Mijoz";
@@ -1009,14 +922,19 @@
                 renderAdminOrders();
             }
         }
-        function openLoginModal() { if (currentUserRole !== 'customer') navigateRole('customer'); else document.getElementById('loginModal').classList.remove('hidden'); }
+        function openLoginModal() { 
+            if (currentUserRole !== 'customer') { 
+                navigateRole('customer'); 
+            } else { 
+                document.getElementById('loginModal').classList.remove('hidden'); 
+            } 
+        }
         function closeLoginModal() { document.getElementById('loginModal').classList.add('hidden'); }
         
         function handleLogin(e) {
             e.preventDefault();
             const u = document.getElementById('loginUser').value.trim();
             const p = document.getElementById('loginPass').value;
-
             if (u === 'ofitsiant1' && p === '123') { 
                 navigateRole('waiter', 'Ofitsiant 1 (Azamat)'); 
                 closeLoginModal(); 
@@ -1033,7 +951,6 @@
                 alert("Login yoki parol xato!"); 
             }
         }
-
         function renderCustomerMenu(category) {
             const container = document.getElementById('customerMenuContainer');
             if(!container) return;
@@ -1055,7 +972,6 @@
             });
         }
         function filterCategory(cat) { renderCustomerMenu(cat); }
-
         function renderTables(updateInput = true) {
             const container = document.getElementById('tablesContainer');
             if(!container) return;
@@ -1088,7 +1004,6 @@
             selectedTableId = id; 
             renderTables(true); 
         }
-
         function renderWaiterMenu() {
             const container = document.getElementById('waiterMenuContainer');
             if(!container) return;
@@ -1116,7 +1031,6 @@
             document.getElementById('cartCount').innerText = cart.length;
             const details = document.getElementById('cartDetails');
             const list = document.getElementById('cartItemsList');
-
             if (cart.length > 0) {
                 details.classList.remove('hidden');
                 list.innerHTML = cart.map((i, index) => `
@@ -1130,13 +1044,11 @@
             } else details.classList.add('hidden');
         }
         function removeFromCart(index) { cart.splice(index, 1); updateCartUI(); }
-
         function submitWaiterOrder() {
             if (cart.length === 0) return alert("Savat bo'sh!");
             const currentTable = tablesData.find(t => t.id === selectedTableId);
             const orderId = '#' + Math.floor(1000 + Math.random() * 9000);
             const totalSum = cart.reduce((s, i) => s + i.price, 0);
-
             ordersData.unshift({
                 id: orderId,
                 table: currentTable.id,
@@ -1148,11 +1060,9 @@
                 payType: null,
                 time: new Date().toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })
             });
-
             currentTable.status = 'band';
             localStorage.setItem('resto_orders', JSON.stringify(ordersData));
             localStorage.setItem('resto_tables', JSON.stringify(tablesData));
-
             cart = [];
             updateCartUI();
             renderTables(true);
@@ -1161,7 +1071,6 @@
             updateStats();
             alert(`Buyurtma ${orderId} (${currentTable.id}-stol) qabul qilindi va admin panelga yuborildi!`);
         }
-
         function renderAdminOrders() {
             const container = document.getElementById('adminOrdersContainer');
             if(!container) return;
@@ -1171,7 +1080,6 @@
                 container.innerHTML = `<p class="text-gray-400 text-sm">Hozircha buyurtmalar yo'q.</p>`;
                 return;
             }
-
             ordersData.forEach(ord => {
                 container.innerHTML += `
                     <div class="bg-white p-5 rounded-2xl shadow-md border-l-4 ${ord.status === "To'landi" ? 'border-green-500' : 'border-yellow-500'}">
@@ -1196,7 +1104,6 @@
                 `;
             });
         }
-
         function requestBill(orderId) {
             const ord = ordersData.find(o => o.id === orderId);
             if (ord) {
@@ -1207,7 +1114,6 @@
                 alert(`Chek chiqarildi va Adminga to'lov uchun xabar yuborildi!`);
             }
         }
-
         function renderWaiterOrders() {
             const container = document.getElementById('waiterOrdersList');
             if(!container) return;
@@ -1218,7 +1124,6 @@
                 container.innerHTML = `<p class="text-xs text-gray-400">Sizda hozircha buyurtmalar yo'q.</p>`;
                 return;
             }
-
             myOrders.forEach(ord => {
                 container.innerHTML += `
                     <div class="bg-white p-4 rounded-xl shadow-sm border mb-3">
