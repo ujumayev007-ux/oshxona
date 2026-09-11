@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Restoran Boshqaruv Tizimi</title>
-    <!-- Tailwind CSS (Dizayn uchun) -->
+    <title>RestoControl - Restoran Boshqaruv Tizimi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -14,11 +13,11 @@
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans min-h-screen">
 
-    <!-- NAVIGATSIYA PANELI (Header) -->
+    <!-- HEADER -->
     <header class="bg-slate-900 text-white p-4 shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <h1 class="text-xl font-bold flex items-center gap-2">
-                <i class="fa-solid font-bold fa-utensils text-yellow-500"></i> RestoControl
+                <i class="fa-solid fa-utensils text-yellow-500"></i> RestoControl
             </h1>
             <div id="userInfo" class="flex items-center gap-4">
                 <span id="roleBadge" class="bg-yellow-500 text-slate-900 text-xs font-bold px-2.5 py-1 rounded-full">Mijoz</span>
@@ -33,59 +32,90 @@
 
         <!-- 1. MIJOZ PANELI -->
         <section id="customerPage" class="page active">
-            <!-- Kategoriya Tugmalari -->
             <div class="flex gap-2 overflow-x-auto pb-4 mb-4 border-b border-gray-200">
-                <button onclick="filterCategory('all')" class="cat-btn bg-slate-800 text-white px-5 py-2 rounded-xl font-medium shadow text-sm">Barchasi</button>
-                <button onclick="filterCategory('taom')" class="cat-btn bg-white hover:bg-gray-100 px-5 py-2 rounded-xl font-medium shadow text-sm">🍲 Taomlar</button>
-                <button onclick="filterCategory('ichimlik')" class="cat-btn bg-white hover:bg-gray-100 px-5 py-2 rounded-xl font-medium shadow text-sm">🥤 Ichimliklar</button>
-                <button onclick="filterCategory('salat')" class="cat-btn bg-white hover:bg-gray-100 px-5 py-2 rounded-xl font-medium shadow text-sm">🥗 Salatlar</button>
+                <button onclick="filterCategory('all')" class="bg-slate-800 text-white px-5 py-2 rounded-xl font-medium shadow text-sm">Barchasi</button>
+                <button onclick="filterCategory('taom')" class="bg-white hover:bg-gray-100 px-5 py-2 rounded-xl font-medium shadow text-sm">🍲 Taomlar</button>
+                <button onclick="filterCategory('ichimlik')" class="bg-white hover:bg-gray-100 px-5 py-2 rounded-xl font-medium shadow text-sm">🥤 Ichimliklar</button>
+                <button onclick="filterCategory('salat')" class="bg-white hover:bg-gray-100 px-5 py-2 rounded-xl font-medium shadow text-sm">🥗 Salatlar</button>
             </div>
-
-            <!-- Menyular Tarmoq Ko'rinishida -->
-            <div id="menuContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                <!-- JS orqali kartochkalar yuklanadi -->
-            </div>
+            <div id="customerMenuContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
         </section>
 
         <!-- 2. OFITSIANT PANELI -->
         <section id="waiterPage" class="page">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold flex items-center gap-2"><i class="fa-solid fa-bell text-blue-600"></i> Kelib tushgan buyurtmalar</h2>
-                <span class="text-sm text-gray-500">Real-vaqt rejimida yangilanadi</span>
+            <!-- Stol sozlash paneli -->
+            <div class="bg-white p-4 rounded-2xl shadow-md mb-6 flex flex-wrap gap-4 items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 block">STOL RAQAMI</label>
+                        <input type="number" id="waiterTableNum" value="1" min="1" class="border rounded-xl p-2 w-24 font-bold text-lg">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 block">MIJOZLAR SONI</label>
+                        <input type="number" id="waiterGuests" value="2" min="1" class="border rounded-xl p-2 w-24 font-bold text-lg">
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-sm font-bold text-gray-600">Savat: <b id="cartCount" class="text-blue-600">0</b> ta mahsulot</span>
+                    <button onclick="submitWaiterOrder()" class="bg-green-600 hover:bg-green-700 text-white font-bold px-5 py-2.5 rounded-xl shadow transition flex items-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i> Buyurtmani oshxonaga yuborish
+                    </button>
+                </div>
             </div>
-            <div id="ordersContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- JS orqali buyurtmalar chiqariladi -->
+
+            <!-- Savat tarkibi -->
+            <div id="cartDetails" class="bg-blue-50 border border-blue-200 p-4 rounded-2xl mb-6 hidden">
+                <h4 class="font-bold text-blue-900 mb-2">Hozirgi tanlanganlar:</h4>
+                <div id="cartItemsList" class="flex flex-wrap gap-2 mb-2"></div>
+                <div class="text-right font-extrabold text-blue-900">Jami: <span id="cartTotalSum">0</span> so'm</div>
+            </div>
+
+            <!-- Menyu tanlash va Aktiv Buyurtmalar -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2">
+                    <h3 class="font-bold text-lg mb-3">Menyudan tanlang:</h3>
+                    <div id="waiterMenuContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg mb-3">Yuborilgan buyurtmalar holati:</h3>
+                    <div id="waiterOrdersList" class="space-y-4"></div>
+                </div>
             </div>
         </section>
 
         <!-- 3. ADMIN PANELI -->
         <section id="adminPage" class="page">
             <div class="flex gap-4 border-b mb-6">
-                <button onclick="switchAdminTab('menuManage')" id="tabMenuBtn" class="py-2 px-4 border-b-2 border-blue-600 font-bold text-blue-600">Menyuni boshqarish</button>
-                <button onclick="switchAdminTab('stockManage')" id="tabStockBtn" class="py-2 px-4 font-bold text-gray-500">Omborxona</button>
+                <button onclick="switchAdminTab('ordersNav')" id="tabOrdersBtn" class="py-2 px-4 border-b-2 border-blue-600 font-bold text-blue-600">Ofitsiantlar buyurtmalari</button>
+                <button onclick="switchAdminTab('menuManage')" id="tabMenuBtn" class="py-2 px-4 font-bold text-gray-500">Menyuni boshqarish</button>
+            </div>
+
+            <!-- Buyurtmalar nazorati -->
+            <div id="ordersNavTab">
+                <h3 class="text-xl font-bold mb-4">Kelib tushgan va jarayondagi buyurtmalar</h3>
+                <div id="adminOrdersContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
             </div>
 
             <!-- Menyu Boshqaruvi -->
-            <div id="menuManageTab">
+            <div id="menuManageTab" class="hidden">
                 <div class="bg-white p-6 rounded-2xl shadow-md mb-8">
-                    <h3 class="text-lg font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-plus-circle text-green-600"></i> Yangi mahsulot qo'shish / Tahrirlash</h3>
-                    <form id="productForm" onsubmit="saveProduct(event)" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <h3 class="text-lg font-bold mb-4">Yangi taom/ichimlik qo'shish</h3>
+                    <form onsubmit="saveProduct(event)" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                         <input type="hidden" id="prodId">
-                        <input type="text" id="prodName" placeholder="Nomi" required class="p-2.5 border rounded-xl w-full">
-                        <select id="prodCategory" class="p-2.5 border rounded-xl w-full">
+                        <input type="text" id="prodName" placeholder="Nomi" required class="p-2.5 border rounded-xl">
+                        <select id="prodCategory" class="p-2.5 border rounded-xl">
                             <option value="taom">Taom</option>
                             <option value="ichimlik">Ichimlik</option>
                             <option value="salat">Salat</option>
                         </select>
-                        <input type="number" id="prodPrice" placeholder="Narxi (so'm)" required class="p-2.5 border rounded-xl w-full">
-                        <input type="text" id="prodImg" placeholder="Rasm URL havolasi" required class="p-2.5 border rounded-xl w-full">
-                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 px-4 rounded-xl shadow transition">Saqlash</button>
+                        <input type="number" id="prodPrice" placeholder="Narxi (so'm)" required class="p-2.5 border rounded-xl">
+                        <input type="text" id="prodImg" placeholder="Rasm URL havolasi" required class="p-2.5 border rounded-xl">
+                        <button type="submit" class="bg-green-600 text-white font-bold py-2.5 px-4 rounded-xl">Saqlash</button>
                     </form>
                 </div>
-
                 <div class="bg-white rounded-2xl shadow-md overflow-hidden">
                     <table class="w-full text-left border-collapse">
-                        <thead class="bg-slate-100 text-gray-700">
+                        <thead class="bg-slate-100">
                             <tr>
                                 <th class="p-4">Rasm</th>
                                 <th class="p-4">Nomi</th>
@@ -94,36 +124,7 @@
                                 <th class="p-4 text-right">Amallar</th>
                             </tr>
                         </thead>
-                        <tbody id="adminMenuTable">
-                            <!-- JS orqali to'ldiriladi -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Omborxona Boshqaruvi -->
-            <div id="stockManageTab" class="hidden">
-                <div class="bg-white p-6 rounded-2xl shadow-md mb-8">
-                    <h3 class="text-lg font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-boxes-stacked text-purple-600"></i> Omborxona xom-ashyolarini boshqarish</h3>
-                    <form onsubmit="saveStock(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <input type="text" id="stockName" placeholder="Masalliq nomi (masalan: Go'sht)" required class="p-2.5 border rounded-xl">
-                        <input type="text" id="stockQty" placeholder="Mog'dori (masalan: 25 kg)" required class="p-2.5 border rounded-xl">
-                        <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 px-4 rounded-xl shadow transition">Omborga qo'shish</button>
-                    </form>
-                </div>
-
-                <div class="bg-white rounded-2xl shadow-md overflow-hidden">
-                    <table class="w-full text-left border-collapse">
-                        <thead class="bg-slate-100 text-gray-700">
-                            <tr>
-                                <th class="p-4">Masalliq</th>
-                                <th class="p-4">Mavjud miqdor</th>
-                                <th class="p-4 text-right">O'chirish</th>
-                            </tr>
-                        </thead>
-                        <tbody id="adminStockTable">
-                            <!-- JS orqali to'ldiriladi -->
-                        </tbody>
+                        <tbody id="adminMenuTable"></tbody>
                     </table>
                 </div>
             </div>
@@ -131,65 +132,77 @@
 
     </main>
 
-    <!-- LOGIN MODAL OYNASI -->
+    <!-- LOGIN MODAL -->
     <div id="loginModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex justify-center items-center z-50">
         <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md relative">
             <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
-            <h2 class="text-2xl font-bold mb-6 text-center text-slate-800">Tizimga kirish</h2>
+            <h2 class="text-2xl font-bold mb-6 text-center">Tizimga kirish</h2>
             <form onsubmit="handleLogin(event)">
                 <div class="mb-4">
                     <label class="block text-sm font-semibold mb-2">Login</label>
-                    <input type="text" id="loginUser" required class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                    <input type="text" id="loginUser" required class="w-full p-3 border rounded-xl">
                 </div>
                 <div class="mb-6">
                     <label class="block text-sm font-semibold mb-2">Parol</label>
-                    <input type="password" id="loginPass" required class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                    <input type="password" id="loginPass" required class="w-full p-3 border rounded-xl">
                 </div>
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-3 rounded-xl shadow-lg transition">Kirish</button>
+                <button type="submit" class="w-full bg-blue-600 text-white font-bold p-3 rounded-xl">Kirish</button>
             </form>
-            <div class="mt-6 text-xs text-gray-500 bg-gray-50 p-3 rounded-xl border">
-                <p><strong>Demo Loginlar:</strong></p>
+            <div class="mt-4 text-xs text-gray-500 bg-gray-50 p-3 rounded-xl">
+                <p><b>Demo Loginlar:</b></p>
                 <p>👨‍🍳 Ofitsiant: <code>waiter</code> / <code>123</code></p>
                 <p>🛠 Admin: <code>admin</code> / <code>admin123</code></p>
             </div>
         </div>
     </div>
 
-    <!-- SCRIPT (Logika va Saqlash) -->
+    <!-- SCRIPT LOGIKA -->
     <script>
-        // DASTLABKI MA'LUMOTLAR
         const initialMenu = [
-            { id: 1, name: "Osh (Palov)", category: "taom", price: 35000, img: "https://images.unsplash.com/photo-1633964913295-ceb43826e7c9?auto=format&fit=crop&w=400&q=80" },
-            { id: 2, name: "Shashlik", category: "taom", price: 18000, img: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=400&q=80" },
-            { id: 3, name: "Coca-Cola 1.5L", category: "ichimlik", price: 14000, img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=400&q=80" },
-            { id: 4, name: "Achichuk salati", category: "salat", price: 12000, img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=400&q=80" }
+            // TAOMLAR
+            { id: 1, name: "Osh", category: "taom", price: 40000, img: "https://images.unsplash.com/photo-1633964913295-ceb43826e7c9?auto=format&fit=crop&w=400&q=80" },
+            { id: 2, name: "Chuchvara", category: "taom", price: 30000, img: "https://images.unsplash.com/photo-1541544741938-0af808871cc0?auto=format&fit=crop&w=400&q=80" },
+            { id: 3, name: "Mastava", category: "taom", price: 30000, img: "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=400&q=80" },
+            { id: 4, name: "Bifsteks", category: "taom", price: 45000, img: "https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&w=400&q=80" },
+            { id: 5, name: "Bifstrogonov", category: "taom", price: 50000, img: "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=400&q=80" },
+
+            // ICHIMLIKLAR
+            { id: 6, name: "Coca Cola 0.5L", category: "ichimlik", price: 8000, img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=400&q=80" },
+            { id: 7, name: "Coca Cola 1.0L", category: "ichimlik", price: 13000, img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=400&q=80" },
+            { id: 8, name: "Coca Cola 0.33L", category: "ichimlik", price: 12000, img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=400&q=80" },
+            { id: 9, name: "Coca Cola (Shishalik)", category: "ichimlik", price: 6000, img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=400&q=80" },
+            { id: 10, name: "Pepsi 0.5L", category: "ichimlik", price: 8000, img: "https://images.unsplash.com/photo-1553456558-aff63285bdd1?auto=format&fit=crop&w=400&q=80" },
+            { id: 11, name: "Pepsi 1.0L", category: "ichimlik", price: 13000, img: "https://images.unsplash.com/photo-1553456558-aff63285bdd1?auto=format&fit=crop&w=400&q=80" },
+            { id: 12, name: "Pepsi 0.33L", category: "ichimlik", price: 12000, img: "https://images.unsplash.com/photo-1553456558-aff63285bdd1?auto=format&fit=crop&w=400&q=80" },
+            { id: 13, name: "Fanta 0.5L", category: "ichimlik", price: 8000, img: "https://images.unsplash.com/photo-1624517452488-04869289c4ca?auto=format&fit=crop&w=400&q=80" },
+            { id: 14, name: "Fanta 1.0L", category: "ichimlik", price: 13000, img: "https://images.unsplash.com/photo-1624517452488-04869289c4ca?auto=format&fit=crop&w=400&q=80" },
+            { id: 15, name: "Fanta 0.33L", category: "ichimlik", price: 12000, img: "https://images.unsplash.com/photo-1624517452488-04869289c4ca?auto=format&fit=crop&w=400&q=80" },
+            { id: 16, name: "Fanta (Shishalik)", category: "ichimlik", price: 6000, img: "https://images.unsplash.com/photo-1624517452488-04869289c4ca?auto=format&fit=crop&w=400&q=80" },
+            { id: 17, name: "Olcha Kampot 1L", category: "ichimlik", price: 14000, img: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=400&q=80" },
+            { id: 18, name: "O'rik Kampot 1L", category: "ichimlik", price: 14000, img: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=400&q=80" },
+
+            // SALATLAR
+            { id: 19, name: "Shakarob", category: "salat", price: 12000, img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=400&q=80" },
+            { id: 20, name: "Olivie", category: "salat", price: 15000, img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=400&q=80" },
+            { id: 21, name: "Muzhskoy Kapriz", category: "salat", price: 20000, img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=400&q=80" }
         ];
 
-        const initialStock = [
-            { id: 1, name: "Guruch", qty: "50 kg" },
-            { id: 2, name: "Mol go'shti", qty: "30 kg" },
-            { id: 3, name: "Piyoz", qty: "20 kg" }
-        ];
-
-        // LOCALSTORAGE BILAN ISHLASH
         let menuData = JSON.parse(localStorage.getItem('resto_menu')) || initialMenu;
-        let stockData = JSON.parse(localStorage.getItem('resto_stock')) || initialStock;
         let ordersData = JSON.parse(localStorage.getItem('resto_orders')) || [];
-        let currentUserRole = 'customer'; // 'customer', 'waiter', 'admin'
+        let cart = [];
+        let currentUserRole = 'customer';
 
-        // ILAVONIZNI ISHGA TUSHIRISH
         document.addEventListener('DOMContentLoaded', () => {
             renderCustomerMenu('all');
+            renderWaiterMenu();
+            renderAdminOrders();
             renderAdminMenu();
-            renderAdminStock();
             renderWaiterOrders();
         });
 
-        // SHABLON / PAGE O'TKAZISH
         function navigateRole(role) {
             currentUserRole = role;
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-
             const badge = document.getElementById('roleBadge');
             const authBtn = document.getElementById('authBtn');
 
@@ -211,13 +224,9 @@
             }
         }
 
-        // LOGIN MODAL VA AUTHENTICATION
         function openLoginModal() {
-            if (currentUserRole !== 'customer') {
-                navigateRole('customer');
-            } else {
-                document.getElementById('loginModal').classList.remove('hidden');
-            }
+            if (currentUserRole !== 'customer') navigateRole('customer');
+            else document.getElementById('loginModal').classList.remove('hidden');
         }
 
         function closeLoginModal() {
@@ -228,145 +237,213 @@
             e.preventDefault();
             const u = document.getElementById('loginUser').value;
             const p = document.getElementById('loginPass').value;
-
-            if (u === 'waiter' && p === '123') {
-                navigateRole('waiter');
-                closeLoginModal();
-            } else if (u === 'admin' && p === 'admin123') {
-                navigateRole('admin');
-                closeLoginModal();
-            } else {
-                alert("Login yoki parol xato!");
-            }
+            if (u === 'waiter' && p === '123') { navigateRole('waiter'); closeLoginModal(); }
+            else if (u === 'admin' && p === 'admin123') { navigateRole('admin'); closeLoginModal(); }
+            else alert("Login yoki parol xato!");
         }
 
-        // 1. MIJOZ PANELI LOGIKASI
+        // MIJOZ MENU
         function renderCustomerMenu(category) {
-            const container = document.getElementById('menuContainer');
+            const container = document.getElementById('customerMenuContainer');
             container.innerHTML = '';
-
             const filtered = category === 'all' ? menuData : menuData.filter(i => i.category === category);
-
             filtered.forEach(item => {
                 container.innerHTML += `
-                    <div class="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition flex flex-col justify-between">
-                        <img src="${item.img}" class="h-48 w-full object-cover" alt="${item.name}">
-                        <div class="p-4 flex-1 flex flex-col justify-between">
-                            <div>
-                                <span class="text-xs font-bold uppercase tracking-wider text-gray-400">${item.category}</span>
-                                <h3 class="font-bold text-lg text-gray-800">${item.name}</h3>
-                            </div>
-                            <div class="mt-4 flex justify-between items-center">
-                                <span class="text-green-600 font-extrabold text-lg">${item.price.toLocaleString('uz-UZ')} so'm</span>
-                                <button onclick="orderItem('${item.name}', ${item.price})" class="bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold px-3 py-2 rounded-xl flex items-center gap-1 transition">
-                                    <i class="fa-solid fa-cart-plus"></i> Buyurtma
-                                </button>
-                            </div>
+                    <div class="bg-white rounded-2xl shadow-md overflow-hidden flex flex-col justify-between">
+                        <img src="${item.img}" class="h-40 w-full object-cover">
+                        <div class="p-4">
+                            <span class="text-xs font-bold uppercase text-gray-400">${item.category}</span>
+                            <h3 class="font-bold text-base text-gray-800">${item.name}</h3>
+                            <div class="mt-3 text-green-600 font-extrabold">${item.price.toLocaleString('uz-UZ')} so'm</div>
                         </div>
                     </div>
                 `;
             });
         }
 
-        function filterCategory(cat) {
-            renderCustomerMenu(cat);
+        function filterCategory(cat) { renderCustomerMenu(cat); }
+
+        // OFITSIANT
+        function renderWaiterMenu() {
+            const container = document.getElementById('waiterMenuContainer');
+            container.innerHTML = '';
+            menuData.forEach(item => {
+                container.innerHTML += `
+                    <div class="bg-white p-3 rounded-xl shadow-sm flex items-center justify-between border">
+                        <div>
+                            <div class="font-bold text-sm">${item.name}</div>
+                            <div class="text-xs text-green-600 font-semibold">${item.price.toLocaleString('uz-UZ')} so'm</div>
+                        </div>
+                        <button onclick="addToCart(${item.id})" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs">
+                            + Qo'shish
+                        </button>
+                    </div>
+                `;
+            });
         }
 
-        function orderItem(name, price) {
-            const tableNum = prompt("Stol raqamini kiriting (Masalan: 4-stol):", "1-stol");
-            if (!tableNum) return;
+        function addToCart(id) {
+            const item = menuData.find(i => i.id === id);
+            cart.push(item);
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            document.getElementById('cartCount').innerText = cart.length;
+            const details = document.getElementById('cartDetails');
+            const list = document.getElementById('cartItemsList');
+
+            if (cart.length > 0) {
+                details.classList.remove('hidden');
+                list.innerHTML = cart.map((i, index) => `
+                    <span class="bg-white border text-xs px-2.5 py-1 rounded-lg font-bold flex items-center gap-1">
+                        ${i.name} (${i.price.toLocaleString()} so'm)
+                        <button onclick="removeFromCart(${index})" class="text-red-500 font-bold ml-1">&times;</button>
+                    </span>
+                `).join('');
+
+                const total = cart.reduce((sum, item) => sum + item.price, 0);
+                document.getElementById('cartTotalSum').innerText = total.toLocaleString('uz-UZ');
+            } else {
+                details.classList.add('hidden');
+            }
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartUI();
+        }
+
+        function submitWaiterOrder() {
+            if (cart.length === 0) {
+                alert("Savat bo'sh! Avval taom tanlang.");
+                return;
+            }
+
+            const tableNum = document.getElementById('waiterTableNum').value;
+            const guests = document.getElementById('waiterGuests').value;
+
+            const orderId = '#' + Math.floor(1000 + Math.random() * 9000);
+            const totalSum = cart.reduce((s, i) => s + i.price, 0);
 
             const newOrder = {
-                id: Date.now(),
+                id: orderId,
                 table: tableNum,
-                item: name,
-                price: price,
-                time: new Date().toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' }),
-                status: 'Yangi'
+                guests: guests,
+                items: [...cart],
+                total: totalSum,
+                status: 'Yangi',
+                time: new Date().toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })
             };
 
             ordersData.unshift(newOrder);
             localStorage.setItem('resto_orders', JSON.stringify(ordersData));
+
+            cart = [];
+            updateCartUI();
             renderWaiterOrders();
-            alert(`${name} buyurtma qilindi! (Ofitsiant paneliga yuborildi)`);
+            renderAdminOrders();
+            alert(`Buyurtma ${orderId} oshxonaga va admin paneliga yuborildi!`);
         }
 
-        // 2. OFITSIANT PANELI LOGIKASI
         function renderWaiterOrders() {
-            const container = document.getElementById('ordersContainer');
+            const container = document.getElementById('waiterOrdersList');
             container.innerHTML = '';
 
             if (ordersData.length === 0) {
-                container.innerHTML = `<p class="text-gray-400 col-span-full text-center py-10">Hozircha buyurtmalar yo'q.</p>`;
+                container.innerHTML = `<p class="text-gray-400 text-sm">Hozircha buyurtmalar yo'q.</p>`;
                 return;
             }
 
             ordersData.forEach(ord => {
-                const statusColor = ord.status === 'Yangi' ? 'bg-yellow-100 text-yellow-800 border-yellow-300' : 'bg-green-100 text-green-800 border-green-300';
-                
+                let badgeClass = 'bg-yellow-100 text-yellow-800 border-yellow-300';
+                if (ord.status === 'Qabul qilindi') badgeClass = 'bg-blue-100 text-blue-800 border-blue-300';
+                if (ord.status === 'Tayyor') badgeClass = 'bg-green-100 text-green-800 border-green-300';
+
                 container.innerHTML += `
-                    <div class="bg-white p-5 rounded-2xl shadow-md border-l-4 ${ord.status === 'Yangi' ? 'border-yellow-500' : 'border-green-500'}">
-                        <div class="flex justify-between items-start mb-2">
-                            <span class="font-extrabold text-slate-800 text-lg">${ord.table}</span>
-                            <span class="text-xs px-2.5 py-1 rounded-full border ${statusColor} font-bold">${ord.status}</span>
+                    <div class="bg-white p-4 rounded-xl shadow-sm border">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-extrabold text-blue-600">${ord.id} (${ord.table}-stol)</span>
+                            <span class="text-xs px-2 py-0.5 rounded border font-bold ${badgeClass}">${ord.status}</span>
                         </div>
-                        <p class="font-semibold text-gray-700 mb-1">${ord.item}</p>
-                        <p class="text-xs text-gray-400 mb-4">Vaqti: ${ord.time} | ${ord.price.toLocaleString('uz-UZ')} so'm</p>
-                        
-                        ${ord.status === 'Yangi' ? `
-                            <button onclick="updateOrderStatus(${ord.id}, 'Bajarildi')" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-xl text-sm transition">
-                                Yakunlash
-                            </button>
-                        ` : `
-                            <button onclick="deleteOrder(${ord.id})" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 rounded-xl text-sm transition">
-                                Arxivlash
-                            </button>
-                        `}
+                        <div class="text-xs text-gray-500 mb-2">Mijozlar: ${ord.guests} kishi | Vaqt: ${ord.time}</div>
+                        <div class="text-xs border-t pt-2 space-y-1">
+                            ${ord.items.map(i => `<div>• ${i.name} - ${i.price.toLocaleString()} so'm</div>`).join('')}
+                        </div>
+                        <div class="font-bold text-sm text-right mt-2 text-green-700">${ord.total.toLocaleString()} so'm</div>
                     </div>
                 `;
             });
         }
 
-        function updateOrderStatus(id, newStatus) {
-            ordersData = ordersData.map(o => o.id === id ? { ...o, status: newStatus } : o);
+        // ADMIN NAZORATI
+        function renderAdminOrders() {
+            const container = document.getElementById('adminOrdersContainer');
+            container.innerHTML = '';
+
+            if (ordersData.length === 0) {
+                container.innerHTML = `<p class="text-gray-400 text-center col-span-full py-10">Buyurtmalar mavjud emas.</p>`;
+                return;
+            }
+
+            ordersData.forEach(ord => {
+                container.innerHTML += `
+                    <div class="bg-white p-5 rounded-2xl shadow-md border-l-4 ${ord.status === 'Tayyor' ? 'border-green-500' : 'border-yellow-500'}">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <span class="font-extrabold text-lg text-slate-800">${ord.id}</span>
+                                <span class="text-xs font-bold bg-gray-100 text-gray-700 px-2 py-1 rounded-md ml-2">${ord.table}-stol (${ord.guests} kishi)</span>
+                            </div>
+                            <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-800">${ord.status}</span>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-xl mb-3 text-xs space-y-1">
+                            ${ord.items.map(i => `<div class="flex justify-between"><span>${i.name}</span><b>${i.price.toLocaleString()} so'm</b></div>`).join('')}
+                        </div>
+                        <div class="flex justify-between items-center mb-4 font-bold">
+                            <span class="text-xs text-gray-400">${ord.time}</span>
+                            <span class="text-green-600 text-base">${ord.total.toLocaleString()} so'm</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="changeOrderStatus('${ord.id}', 'Qabul qilindi')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-1.5 rounded-lg text-xs">Qabul qilindi</button>
+                            <button onclick="changeOrderStatus('${ord.id}', 'Tayyor')" class="bg-green-600 hover:bg-green-700 text-white font-bold py-1.5 rounded-lg text-xs">Tayyor</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function changeOrderStatus(id, status) {
+            ordersData = ordersData.map(o => o.id === id ? { ...o, status: status } : o);
             localStorage.setItem('resto_orders', JSON.stringify(ordersData));
+            renderAdminOrders();
             renderWaiterOrders();
         }
 
-        function deleteOrder(id) {
-            ordersData = ordersData.filter(o => o.id !== id);
-            localStorage.setItem('resto_orders', JSON.stringify(ordersData));
-            renderWaiterOrders();
-        }
-
-        // 3. ADMIN PANELI LOGIKASI
         function switchAdminTab(tab) {
-            if (tab === 'menuManage') {
-                document.getElementById('menuManageTab').classList.remove('hidden');
-                document.getElementById('stockManageTab').classList.add('hidden');
-                document.getElementById('tabMenuBtn').className = "py-2 px-4 border-b-2 border-blue-600 font-bold text-blue-600";
-                document.getElementById('tabStockBtn').className = "py-2 px-4 font-bold text-gray-500";
-            } else {
+            if (tab === 'ordersNav') {
+                document.getElementById('ordersNavTab').classList.remove('hidden');
                 document.getElementById('menuManageTab').classList.add('hidden');
-                document.getElementById('stockManageTab').classList.remove('hidden');
-                document.getElementById('tabStockBtn').className = "py-2 px-4 border-b-2 border-blue-600 font-bold text-blue-600";
+                document.getElementById('tabOrdersBtn').className = "py-2 px-4 border-b-2 border-blue-600 font-bold text-blue-600";
                 document.getElementById('tabMenuBtn').className = "py-2 px-4 font-bold text-gray-500";
+            } else {
+                document.getElementById('ordersNavTab').classList.add('hidden');
+                document.getElementById('menuManageTab').classList.remove('hidden');
+                document.getElementById('tabMenuBtn').className = "py-2 px-4 border-b-2 border-blue-600 font-bold text-blue-600";
+                document.getElementById('tabOrdersBtn').className = "py-2 px-4 font-bold text-gray-500";
             }
         }
 
         function renderAdminMenu() {
             const table = document.getElementById('adminMenuTable');
             table.innerHTML = '';
-
             menuData.forEach(item => {
                 table.innerHTML += `
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="p-4"><img src="${item.img}" class="w-12 h-12 rounded-lg object-cover"></td>
-                        <td class="p-4 font-bold">${item.name}</td>
-                        <td class="p-4 capitalize text-gray-500">${item.category}</td>
-                        <td class="p-4 font-semibold text-green-600">${item.price.toLocaleString('uz-UZ')} so'm</td>
-                        <td class="p-4 text-right">
-                            <button onclick="editProduct(${item.id})" class="text-blue-600 hover:text-blue-800 mr-3"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <td class="p-3"><img src="${item.img}" class="w-10 h-10 rounded-lg object-cover"></td>
+                        <td class="p-3 font-bold">${item.name}</td>
+                        <td class="p-3 capitalize text-gray-500">${item.category}</td>
+                        <td class="p-3 font-semibold text-green-600">${item.price.toLocaleString('uz-UZ')} so'm</td>
+                        <td class="p-3 text-right">
                             <button onclick="deleteProduct(${item.id})" class="text-red-600 hover:text-red-800"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
@@ -376,77 +453,31 @@
 
         function saveProduct(e) {
             e.preventDefault();
-            const id = document.getElementById('prodId').value;
             const name = document.getElementById('prodName').value;
             const category = document.getElementById('prodCategory').value;
             const price = parseFloat(document.getElementById('prodPrice').value);
             const img = document.getElementById('prodImg').value;
 
-            if (id) {
-                menuData = menuData.map(p => p.id == id ? { id: Number(id), name, category, price, img } : p);
-            } else {
-                menuData.push({ id: Date.now(), name, category, price, img });
-            }
-
+            menuData.push({ id: Date.now(), name, category, price, img });
             localStorage.setItem('resto_menu', JSON.stringify(menuData));
-            document.getElementById('productForm').reset();
-            document.getElementById('prodId').value = '';
+
+            document.getElementById('prodName').value = '';
+            document.getElementById('prodPrice').value = '';
+            document.getElementById('prodImg').value = '';
+
             renderAdminMenu();
             renderCustomerMenu('all');
-        }
-
-        function editProduct(id) {
-            const item = menuData.find(p => p.id === id);
-            if (!item) return;
-            document.getElementById('prodId').value = item.id;
-            document.getElementById('prodName').value = item.name;
-            document.getElementById('prodCategory').value = item.category;
-            document.getElementById('prodPrice').value = item.price;
-            document.getElementById('prodImg').value = item.img;
+            renderWaiterMenu();
         }
 
         function deleteProduct(id) {
-            if (confirm("Ushbu mahsulotni o'chirishni xohlaysizmi?")) {
+            if (confirm("Mahsulotni o'chirmoqchimisiz?")) {
                 menuData = menuData.filter(p => p.id !== id);
                 localStorage.setItem('resto_menu', JSON.stringify(menuData));
                 renderAdminMenu();
                 renderCustomerMenu('all');
+                renderWaiterMenu();
             }
-        }
-
-        // OMBORXONA LOGIKASI
-        function renderAdminStock() {
-            const table = document.getElementById('adminStockTable');
-            table.innerHTML = '';
-
-            stockData.forEach(item => {
-                table.innerHTML += `
-                    <tr class="border-b hover:bg-gray-50">
-                        <td class="p-4 font-bold">${item.name}</td>
-                        <td class="p-4 font-semibold text-purple-600">${item.qty}</td>
-                        <td class="p-4 text-right">
-                            <button onclick="deleteStock(${item.id})" class="text-red-600 hover:text-red-800"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        function saveStock(e) {
-            e.preventDefault();
-            const name = document.getElementById('stockName').value;
-            const qty = document.getElementById('stockQty').value;
-
-            stockData.push({ id: Date.now(), name, qty });
-            localStorage.setItem('resto_stock', JSON.stringify(stockData));
-            e.target.reset();
-            renderAdminStock();
-        }
-
-        function deleteStock(id) {
-            stockData = stockData.filter(s => s.id !== id);
-            localStorage.setItem('resto_stock', JSON.stringify(stockData));
-            renderAdminStock();
         }
     </script>
 </body>
