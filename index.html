@@ -26,6 +26,7 @@
             </h1>
             <div id="userInfo" class="flex items-center gap-4">
                 <span id="roleBadge" class="bg-yellow-500 text-slate-900 text-xs font-bold px-2.5 py-1 rounded-full">Mijoz</span>
+                <span id="activeWaiterName" class="text-xs text-blue-300 font-semibold hidden"></span>
                 <button id="authBtn" onclick="openLoginModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-1.5 rounded-lg transition">
                     <i class="fa-solid fa-right-to-bracket mr-1"></i> Tizimga kirish
                 </button>
@@ -50,7 +51,7 @@
         <section id="waiterPage" class="page">
             <div class="mb-8">
                 <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-chair text-blue-600"></i> Stollar xaritasi
+                    <i class="fa-solid fa-chair text-blue-600"></i> Stollar xaritasi va Mijozlar soni
                 </h3>
                 <div id="tablesContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"></div>
             </div>
@@ -82,7 +83,7 @@
                     <div id="waiterMenuContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
                 </div>
                 <div>
-                    <h3 class="font-bold text-lg mb-3 text-slate-800">Yuborilgan buyurtmalar:</h3>
+                    <h3 class="font-bold text-lg mb-3 text-slate-800">Mening buyurtmalarim va chek chiqarish:</h3>
                     <div id="waiterOrdersList" class="space-y-4"></div>
                 </div>
             </div>
@@ -131,7 +132,7 @@
 
             <!-- 1. BUYURTMALAR TABI -->
             <div id="ordersNavTab">
-                <h3 class="text-xl font-bold mb-4">Barcha buyurtmalar va to'lovlar</h3>
+                <h3 class="text-xl font-bold mb-4">Barcha buyurtmalar, Ofitsiantlar va To'lovlar</h3>
                 <div id="adminOrdersContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
             </div>
 
@@ -225,6 +226,7 @@
                         <tr>
                             <th class="p-2.5">Vaqt</th>
                             <th class="p-2.5">Stol</th>
+                            <th class="p-2.5">Ofitsiant</th>
                             <th class="p-2.5">To'lov Turi</th>
                             <th class="p-2.5">Tushum</th>
                             <th class="p-2.5 text-right text-green-600">Sof Foyda</th>
@@ -236,7 +238,7 @@
         </div>
     </div>
 
-    <!-- MODAL 2: SOTILGAN MAHSULOTLAR -->
+    <!-- MODAL 2: SOTILGAN MAHSULOT -->
     <div id="mahsulotModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex justify-center items-center z-50">
         <div class="bg-white p-6 rounded-3xl shadow-2xl w-full max-w-2xl relative">
             <button onclick="closeModal('mahsulotModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
@@ -291,11 +293,11 @@
             <h2 class="text-2xl font-bold mb-6 text-center text-slate-800">Tizimga kirish</h2>
             <form onsubmit="handleLogin(event)">
                 <div class="mb-4">
-                    <label class="block text-sm font-semibold mb-2">Login</label>
+                    <label class="block text-sm font-semibold mb-2">Login (ofitsiant1, ofitsiant2, ofitsiant3 yoki admin)</label>
                     <input type="text" id="loginUser" required class="w-full p-3 border rounded-xl">
                 </div>
                 <div class="mb-6">
-                    <label class="block text-sm font-semibold mb-2">Parol</label>
+                    <label class="block text-sm font-semibold mb-2">Parol (123 yoki admin123)</label>
                     <input type="password" id="loginPass" required class="w-full p-3 border rounded-xl">
                 </div>
                 <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-3 rounded-xl">Kirish</button>
@@ -304,19 +306,28 @@
     </div>
 
     <script>
-        // Taomlar menyusi (Sotuv narxlari siz bergan qiymatlar asosida)
+        // Taomlar menyusi (Barcha taom, salat va ichimliklar to'liq ro'yxati)
         const defaultMenu = [
+            // Taomlar
             { id: 1, name: "Osh", category: "taom", cost: 30000, price: 40000, img: "https://images.unsplash.com/photo-1633964913295-ceb43826e7c9?auto=format&fit=crop&w=500&q=80" },
             { id: 2, name: "Chuchvara", category: "taom", cost: 22000, price: 30000, img: "https://images.unsplash.com/photo-1541696432-82c6da8ce7bf?auto=format&fit=crop&w=500&q=80" },
             { id: 3, name: "Mastava", category: "taom", cost: 21000, price: 30000, img: "https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=500&q=80" },
             { id: 4, name: "Bifsteks", category: "taom", cost: 32000, price: 45000, img: "https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&w=500&q=80" },
             { id: 5, name: "Bifstrogonov", category: "taom", cost: 36000, price: 50000, img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=500&q=80" },
-            { id: 6, name: "Shakarob", category: "salat", cost: 8000, price: 12000, img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=500&q=80" },
-            { id: 7, name: "Olivie", category: "salat", cost: 10000, price: 15000, img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=500&q=80" },
-            { id: 8, name: "Mujkoy Kapriz", category: "salat", cost: 14000, price: 20000, img: "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?auto=format&fit=crop&w=500&q=80" }
+            { id: 6, name: "Norin", category: "taom", cost: 35000, price: 48000, img: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=500&q=80" },
+            { id: 7, name: "Manti", category: "taom", cost: 25000, price: 35000, img: "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?auto=format&fit=crop&w=500&q=80" },
+            // Salatlar
+            { id: 8, name: "Shakarob", category: "salat", cost: 8000, price: 12000, img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=500&q=80" },
+            { id: 9, name: "Olivie", category: "salat", cost: 10000, price: 15000, img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=500&q=80" },
+            { id: 10, name: "Mujkoy Kapriz", category: "salat", cost: 14000, price: 20000, img: "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?auto=format&fit=crop&w=500&q=80" },
+            { id: 11, name: "Gretskiy salat", category: "salat", cost: 12000, price: 18000, img: "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=500&q=80" },
+            // Ichimliklar
+            { id: 12, name: "Coca-Cola 1L", category: "ichimlik", cost: 8000, price: 12000, img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=500&q=80" },
+            { id: 13, name: "Qora choy", category: "ichimlik", cost: 3000, price: 5000, img: "https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=500&q=80" },
+            { id: 14, name: "Ko'k choy", category: "ichimlik", cost: 3000, price: 5000, img: "https://images.unsplash.com/photo-1597481499750-3e6b22637e12?auto=format&fit=crop&w=500&q=80" }
         ];
 
-        // Ombordagi xomashyolar bazasi (Gramm va ml larda)
+        // Ombordagi xomashyolar bazasi
         const defaultWarehouse = [
             { id: 1, name: "Guruch", amount: 50000, unit: "gram" },
             { id: 2, name: "Go'sht", amount: 30000, unit: "gram" },
@@ -333,19 +344,22 @@
             { id: 13, name: "Dumba yog'i", amount: 10000, unit: "gram" }
         ];
 
-        // Har bir taom va salatning 1 porsiya uchun aniq sarflanish retsepti (Texnologik karta)
+        // Taom va salat retseptlari (Texnologik kartalar)
         const dishRecipes = {
             "Osh": { "Guruch": 250, "Go'sht": 200, "Sabzi": 300, "Yog'": 50, "Piyoz": 50, "Tuz va Ziravorlar": 10 },
             "Chuchvara": { "Un": 120, "Go'sht": 150, "Piyoz": 80, "Tuz va Ziravorlar": 5, "Yog'": 20 },
             "Mastava": { "Guruch": 80, "Go'sht": 120, "Kartoshka": 100, "Sabzi": 50, "Piyoz": 50, "Yog'": 30, "Tuz va Ziravorlar": 10 },
             "Bifsteks": { "Go'sht": 220, "Kartoshka": 150, "Yog'": 40, "Piyoz": 30, "Tuz va Ziravorlar": 10 },
             "Bifstrogonov": { "Go'sht": 200, "Piyoz": 60, "Yog'": 40, "Mayonez": 30, "Tuz va Ziravorlar": 10 },
+            "Norin": { "Go'sht": 180, "Un": 100, "Piyoz": 40, "Tuz va Ziravorlar": 10 },
+            "Manti": { "Un": 120, "Go'sht": 150, "Piyoz": 100, "Dumba yog'i": 30, "Tuz va Ziravorlar": 5 },
             "Shakarob": { "Pomidor": 150, "Piyoz": 50, "Tuz va Ziravorlar": 5 },
             "Olivie": { "Kartoshka": 100, "Kolbasa": 80, "Mayonez": 50, "Bodring": 60, "Tuz va Ziravorlar": 5 },
-            "Mujkoy Kapriz": { "Go'sht": 100, "Bodring": 80, "Pomidor": 80, "Mayonez": 40, "Tuz va Ziravorlar": 5 }
+            "Mujkoy Kapriz": { "Go'sht": 100, "Bodring": 80, "Pomidor": 80, "Mayonez": 40, "Tuz va Ziravorlar": 5 },
+            "Gretskiy salat": { "Pomidor": 100, "Bodring": 100, "Tuz va Ziravorlar": 5 }
         };
 
-        const MENU_VERSION = "v12.0_azamat_umid_restaurant";
+        const MENU_VERSION = "v15.0_azamat_umid_restaurant";
         if (localStorage.getItem('resto_version_check') !== MENU_VERSION) {
             localStorage.setItem('resto_menu', JSON.stringify(defaultMenu));
             localStorage.setItem('resto_warehouse', JSON.stringify(defaultWarehouse));
@@ -354,13 +368,14 @@
 
         let menuData = JSON.parse(localStorage.getItem('resto_menu')) || defaultMenu;
         let warehouseData = JSON.parse(localStorage.getItem('resto_warehouse')) || defaultWarehouse;
-        let tablesData = JSON.parse(localStorage.getItem('resto_tables')) || Array.from({ length: 12 }, (_, i) => ({ id: i + 1, guests: 2, status: 'bo\'sh' }));
+        let tablesData = JSON.parse(localStorage.getItem('resto_tables')) || Array.from({ length: 12 }, (_, i) => ({ id: i + 1, guests: (i % 4) + 2, status: 'bo\'sh' }));
         let ordersData = JSON.parse(localStorage.getItem('resto_orders')) || [];
 
         let selectedTableId = 1;
         let selectedPayTypeVal = 'Naqd';
         let cart = [];
         let currentUserRole = 'customer';
+        let currentWaiterName = '';
 
         document.addEventListener('DOMContentLoaded', () => {
             renderCustomerMenu('all');
@@ -548,7 +563,7 @@
             renderWaiterOrders();
             renderWarehouse();
             updateStats();
-            alert("To'lov qabul qilindi va har bir taom uchun sarflangan grammlar omdeorxonadan avtomatik ayirildi!");
+            alert("To'lov qabul qilindi va har bir taom uchun sarflangan grammlar ombordan avtomatik ayirildi, stol bo'shatildi!");
         }
 
         function updateStats() {
@@ -588,7 +603,7 @@
             const paidOrders = ordersData.filter(o => o.status === "To'landi");
 
             if (paidOrders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-400">To'lovlar mavjud emas.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-400">To'lovlar mavjud emas.</td></tr>`;
                 return;
             }
 
@@ -600,6 +615,7 @@
                     <tr class="hover:bg-gray-50 border-b">
                         <td class="p-2.5 font-bold text-gray-700">${ord.time}</td>
                         <td class="p-2.5 font-bold">${ord.table}-stol</td>
+                        <td class="p-2.5 text-blue-600 font-semibold">${ord.waiter || 'Nomaʼlum'}</td>
                         <td class="p-2.5"><span class="px-2 py-0.5 rounded text-[11px] font-bold bg-gray-100">${ord.payType || 'Naqd'}</span></td>
                         <td class="p-2.5 font-extrabold text-blue-600">${ord.total.toLocaleString()} so'm</td>
                         <td class="p-2.5 text-right font-black text-green-600">+${orderProfit.toLocaleString()} so'm</td>
@@ -694,39 +710,63 @@
                 document.getElementById('tabWarehouseBtn').className = "py-2 px-4 border-b-2 border-blue-600 font-bold text-blue-600 whitespace-nowrap";
             }
         }
-        function navigateRole(role) {
+        function navigateRole(role, waiterName = '') {
             currentUserRole = role;
+            currentWaiterName = waiterName;
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             const badge = document.getElementById('roleBadge');
             const authBtn = document.getElementById('authBtn');
+            const waiterLabel = document.getElementById('activeWaiterName');
 
             if (role === 'customer') {
                 document.getElementById('customerPage').classList.add('active');
                 badge.innerText = "Mijoz";
                 badge.className = "bg-yellow-500 text-slate-900 text-xs font-bold px-2.5 py-1 rounded-full";
                 authBtn.innerHTML = `<i class="fa-solid fa-right-to-bracket mr-1"></i> Tizimga kirish`;
+                waiterLabel.classList.add('hidden');
             } else if (role === 'waiter') {
                 document.getElementById('waiterPage').classList.add('active');
                 badge.innerText = "Ofitsiant";
                 badge.className = "bg-blue-500 text-white text-xs font-bold px-2.5 py-1 rounded-full";
                 authBtn.innerHTML = `<i class="fa-solid fa-right-from-bracket mr-1"></i> Chiqish`;
+                waiterLabel.innerText = `👤 ${waiterName}`;
+                waiterLabel.classList.remove('hidden');
+                renderWaiterOrders();
             } else if (role === 'admin') {
                 document.getElementById('adminPage').classList.add('active');
                 badge.innerText = "Administrator";
                 badge.className = "bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full";
                 authBtn.innerHTML = `<i class="fa-solid fa-right-from-bracket mr-1"></i> Chiqish`;
+                waiterLabel.classList.add('hidden');
+                renderAdminOrders();
             }
         }
         function openLoginModal() { if (currentUserRole !== 'customer') navigateRole('customer'); else document.getElementById('loginModal').classList.remove('hidden'); }
         function closeLoginModal() { document.getElementById('loginModal').classList.add('hidden'); }
+        
         function handleLogin(e) {
             e.preventDefault();
-            const u = document.getElementById('loginUser').value;
+            const u = document.getElementById('loginUser').value.trim();
             const p = document.getElementById('loginPass').value;
-            if (u === 'waiter' && p === '123') { navigateRole('waiter'); closeLoginModal(); }
-            else if (u === 'admin' && p === 'admin123') { navigateRole('admin'); closeLoginModal(); }
-            else alert("Login yoki parol xato!");
+
+            // 3 ta ofitsiant va admin login parollari
+            if (u === 'ofitsiant1' && p === '123') { 
+                navigateRole('waiter', 'Ofitsiant 1 (Azamat)'); 
+                closeLoginModal(); 
+            } else if (u === 'ofitsiant2' && p === '123') { 
+                navigateRole('waiter', 'Ofitsiant 2 (Umid)'); 
+                closeLoginModal(); 
+            } else if (u === 'ofitsiant3' && p === '123') { 
+                navigateRole('waiter', 'Ofitsiant 3 (Javohir)'); 
+                closeLoginModal(); 
+            } else if (u === 'admin' && p === 'admin123') { 
+                navigateRole('admin'); 
+                closeLoginModal(); 
+            } else { 
+                alert("Login yoki parol xato! Ofitsiantlar uchun: ofitsiant1/123, ofitsiant2/123, ofitsiant3/123. Admin uchun: admin/admin123"); 
+            }
         }
+
         function renderCustomerMenu(category) {
             const container = document.getElementById('customerMenuContainer');
             if(!container) return;
@@ -748,6 +788,8 @@
             });
         }
         function filterCategory(cat) { renderCustomerMenu(cat); }
+
+        // Stol rasmi va mijozlar soni bilan render qilish
         function renderTables() {
             const container = document.getElementById('tablesContainer');
             if(!container) return;
@@ -756,10 +798,12 @@
                 const isSelected = tbl.id === selectedTableId;
                 const isBusy = tbl.status === 'band';
                 container.innerHTML += `
-                    <div onclick="selectTable(${tbl.id})" class="bg-white p-3 rounded-2xl shadow border-2 ${isSelected ? 'border-blue-600 bg-blue-50' : 'border-gray-200'} cursor-pointer text-center relative transition flex flex-col justify-between">
+                    <div onclick="selectTable(${tbl.id})" class="bg-white p-3 rounded-2xl shadow border-2 ${isSelected ? 'border-blue-600 bg-blue-50' : 'border-gray-200'} cursor-pointer text-center relative transition flex flex-col items-center justify-between">
+                        <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=200&q=80" class="w-16 h-16 rounded-xl object-cover mb-2 shadow-sm">
                         <div>
                             <div class="font-extrabold text-sm text-slate-800">${tbl.id}-Stol</div>
-                            <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${isBusy ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}">${isBusy ? 'Band' : "Bo'sh"}</span>
+                            <div class="text-xs font-semibold text-gray-500 mt-0.5">👥 ${tbl.guests} nafar mijoz</div>
+                            <span class="text-[10px] font-bold uppercase px-2 py-0.5 mt-1 inline-block rounded-full ${isBusy ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}">${isBusy ? 'Band' : "Bo'sh"}</span>
                         </div>
                     </div>
                 `;
@@ -768,6 +812,7 @@
             if(tableLbl) tableLbl.innerText = `${selectedTableId}-Stol`;
         }
         function selectTable(id) { selectedTableId = id; renderTables(); }
+
         function renderWaiterMenu() {
             const container = document.getElementById('waiterMenuContainer');
             if(!container) return;
@@ -809,6 +854,8 @@
             } else details.classList.add('hidden');
         }
         function removeFromCart(index) { cart.splice(index, 1); updateCartUI(); }
+
+        // Ofitsiant buyurtmani yuborishi va admin panelga uzatish
         function submitWaiterOrder() {
             if (cart.length === 0) return alert("Savat bo'sh!");
             const currentTable = tablesData.find(t => t.id === selectedTableId);
@@ -819,6 +866,7 @@
                 id: orderId,
                 table: currentTable.id,
                 guests: currentTable.guests,
+                waiter: currentWaiterName || "Ofitsiant",
                 items: [...cart],
                 total: totalSum,
                 status: 'Yangi',
@@ -836,19 +884,28 @@
             renderWaiterOrders();
             renderAdminOrders();
             updateStats();
-            alert(`Buyurtma ${orderId} (${currentTable.id}-stol) yuborildi!`);
+            alert(`Buyurtma ${orderId} (${currentTable.id}-stol) muvaffaqiyatli qabul qilindi va admin panelga yuborildi!`);
         }
+
+        // Admin panelida buyurtmalar va ofitsiant ismini ko'rsatish
         function renderAdminOrders() {
             const container = document.getElementById('adminOrdersContainer');
             if(!container) return;
             container.innerHTML = '';
+            
+            if (ordersData.length === 0) {
+                container.innerHTML = `<p class="text-gray-400 text-sm">Hozircha buyurtmalar yo'q.</p>`;
+                return;
+            }
+
             ordersData.forEach(ord => {
                 container.innerHTML += `
                     <div class="bg-white p-5 rounded-2xl shadow-md border-l-4 ${ord.status === "To'landi" ? 'border-green-500' : 'border-yellow-500'}">
-                        <div class="flex justify-between items-start mb-3">
+                        <div class="flex justify-between items-start mb-2">
                             <span class="font-extrabold text-lg text-slate-800">${ord.id} (${ord.table}-stol)</span>
                             <span class="text-xs font-bold px-2 py-1 rounded bg-gray-100">${ord.status}</span>
                         </div>
+                        <div class="text-xs text-blue-600 font-bold mb-3"><i class="fa-solid fa-user-tie mr-1"></i> Ofitsiant: ${ord.waiter || 'Nomaʼlum'}</div>
                         <div class="bg-gray-50 p-3 rounded-xl mb-3 text-xs space-y-1">
                             ${ord.items.map(i => `<div class="flex justify-between"><span>${i.name}</span><b>${i.price.toLocaleString()} so'm</b></div>`).join('')}
                         </div>
@@ -858,25 +915,51 @@
                         </div>
                         ${ord.status !== "To'landi" ? `
                             <button onclick="openPaymentModal('${ord.id}', ${ord.table}, ${ord.total})" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-lg text-xs">
-                                💳 To'lovni olish
+                                💳 To'lovni olish va Stolni bo'shatish
                             </button>
                         ` : `<div class="text-center bg-green-50 text-green-700 py-1 rounded-lg text-xs font-bold">To'langan (${ord.payType})</div>`}
                     </div>
                 `;
             });
         }
+
+        // Ofitsiant chek chiqarish tugmasini bosib adminga to'lov xabarini yuborishi
+        function requestBill(orderId) {
+            const ord = ordersData.find(o => o.id === orderId);
+            if (ord) {
+                ord.status = "Chek chiqarildi (To'lov kutilmoqda)";
+                localStorage.setItem('resto_orders', JSON.stringify(ordersData));
+                renderWaiterOrders();
+                renderAdminOrders();
+                alert(`Chek chiqarildi va Adminga to'lov uchun xabar yuborildi!`);
+            }
+        }
+
         function renderWaiterOrders() {
             const container = document.getElementById('waiterOrdersList');
             if(!container) return;
             container.innerHTML = '';
-            ordersData.forEach(ord => {
+            
+            const myOrders = ordersData.filter(ord => ord.waiter === currentWaiterName || currentUserRole === 'waiter');
+            if (myOrders.length === 0) {
+                container.innerHTML = `<p class="text-xs text-gray-400">Sizda hozircha buyurtmalar yo'q.</p>`;
+                return;
+            }
+
+            myOrders.forEach(ord => {
                 container.innerHTML += `
-                    <div class="bg-white p-4 rounded-xl shadow-sm border">
+                    <div class="bg-white p-4 rounded-xl shadow-sm border mb-3">
                         <div class="flex justify-between items-center mb-2">
                             <span class="font-extrabold text-blue-600">${ord.id} (${ord.table}-stol)</span>
-                            <span class="text-xs px-2 py-0.5 rounded font-bold bg-gray-100">${ord.status}</span>
+                            <span class="text-[10px] px-2 py-0.5 rounded font-bold bg-gray-100">${ord.status}</span>
                         </div>
-                        <div class="font-bold text-sm text-right text-green-700">${ord.total.toLocaleString()} so'm</div>
+                        <div class="text-xs text-gray-500 mb-2">Ofitsiant: <b>${ord.waiter}</b></div>
+                        <div class="font-bold text-sm text-right text-green-700 mb-3">${ord.total.toLocaleString()} so'm</div>
+                        ${ord.status !== "To'landi" && !ord.status.includes("Chek chiqarildi") ? `
+                            <button onclick="requestBill('${ord.id}')" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 rounded-lg text-xs transition">
+                                🖨️ Chek chiqarish va to'lovga berish
+                            </button>
+                        ` : `<div class="text-center bg-blue-50 text-blue-700 py-1 rounded text-xs font-bold">Admin tasdiqi kutilmoqda</div>`}
                     </div>
                 `;
             });
