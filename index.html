@@ -3,1156 +3,553 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Azamatjon & Umidjon Restarani - Omborxona va Tannarx Tizimi</title>
+    <title>Restaurant Management System</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- QR Code Library CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
     <style>
-        .page { display: none; }
-        .page.active { display: block; }
         @media print {
-            body * { visibility: hidden; }
-            #warehousePrintArea, #warehousePrintArea * { visibility: visible; }
-            #warehousePrintArea { position: absolute; left: 0; top: 0; width: 100%; }
+            body * {
+                visibility: hidden;
+            }
+            #print-area, #print-area * {
+                visibility: visible;
+            }
+            #print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
         }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-800 font-sans min-h-screen">
-    <!-- HEADER -->
-    <header class="bg-slate-900 text-white p-4 shadow-lg sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold flex items-center gap-2">
-                <i class="fa-solid fa-utensils text-yellow-500"></i> Azamatjon & Umidjon Restarani
-            </h1>
-            <div id="userInfo" class="flex items-center gap-4">
-                <span id="roleBadge" class="bg-yellow-500 text-slate-900 text-xs font-bold px-2.5 py-1 rounded-full">Mijoz</span>
-                <span id="activeWaiterName" class="text-xs text-blue-300 font-semibold hidden"></span>
-                <button id="authBtn" onclick="openLoginModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-1.5 rounded-lg transition">
-                    <i class="fa-solid fa-right-to-bracket mr-1"></i> Tizimga kirish
-                </button>
+<body class="bg-slate-100 font-sans antialiased text-slate-800">
+
+    <div id="app" class="min-h-screen flex flex-col">
+        <!-- Top Navigation / Role Switcher -->
+        <header class="bg-indigo-600 text-white shadow-md p-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold">🍽️ Restaurant POS & Admin System</h1>
+            <div class="space-x-2">
+                <button onclick="switchTab('waiter')" id="btn-waiter" class="px-4 py-2 bg-indigo-700 rounded font-medium transition hover:bg-indigo-800">Ofitsant Paneli</button>
+                <button onclick="switchTab('admin')" id="btn-admin" class="px-4 py-2 bg-indigo-500 rounded font-medium transition hover:bg-indigo-600">Admin Paneli</button>
             </div>
-        </div>
-    </header>
-    <main class="max-w-7xl mx-auto p-4 md:p-6">
-        <!-- 1. MIJOZ PANELI -->
-        <section id="customerPage" class="page active">
-            <div class="flex gap-2 overflow-x-auto pb-4 mb-4 border-b border-gray-200">
-                <button onclick="filterCategory('all')" class="bg-slate-800 text-white px-5 py-2 rounded-xl font-medium shadow text-sm">Barchasi</button>
-                <button onclick="filterCategory('taom')" class="bg-white hover:bg-gray-100 px-5 py-2 rounded-xl font-medium shadow text-sm">🍲 Taomlar</button>
-                <button onclick="filterCategory('salat')" class="bg-white hover:bg-gray-100 px-5 py-2 rounded-xl font-medium shadow text-sm">🥗 Salatlar</button>
-                <button onclick="filterCategory('ichimlik')" class="bg-white hover:bg-gray-100 px-5 py-2 rounded-xl font-medium shadow text-sm">🥤 Ichimliklar</button>
-            </div>
-            <div id="customerMenuContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
-        </section>
-        <!-- 2. OFITSIANT PANELI -->
-        <section id="waiterPage" class="page">
-            <div class="mb-8">
-                <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-chair text-blue-600"></i> Stollar xaritasi va Mijozlar soni
-                </h3>
-                <div id="tablesContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"></div>
-            </div>
-            <div class="bg-white p-4 rounded-2xl shadow-md mb-6 flex flex-wrap gap-4 items-center justify-between border border-blue-100">
-                <div class="flex items-center gap-4 flex-wrap">
-                    <div class="bg-blue-50 border border-blue-200 px-4 py-2 rounded-xl">
-                        <span class="text-xs font-bold text-gray-500 block">TANLANGAN STOL</span>
-                        <span id="selectedTableLabel" class="text-lg font-extrabold text-blue-700">1-Stol</span>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 p-6 max-w-7xl mx-auto w-full">
+            
+            <!-- WAITER PANEL -->
+            <section id="waiter-panel" class="space-y-6">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-semibold text-slate-700">Ofitsant Buyurtma Paneli</h2>
+                    <div class="text-sm bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full border border-indigo-200">Faol stol tanlang va buyurtma bering</div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Tables & Menu Selection -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <!-- Tables Grid -->
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                            <h3 class="text-lg font-medium mb-3 text-slate-700">Stollar</h3>
+                            <div id="tables-container" class="grid grid-cols-4 sm:grid-cols-6 gap-3">
+                                <!-- Dynamic Tables -->
+                            </div>
+                        </div>
+
+                        <!-- Menu Categories & Items with Plus/Minus -->
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                            <h3 class="text-lg font-medium mb-3 text-slate-700">Menyu (Taom, Salat, Ichimlik)</h3>
+                            <div class="flex space-x-2 mb-4 border-b pb-2">
+                                <button onclick="filterMenu('all')" class="px-3 py-1 text-sm bg-slate-200 rounded hover:bg-slate-300 transition">Barchasi</button>
+                                <button onclick="filterMenu('taom')" class="px-3 py-1 text-sm bg-slate-200 rounded hover:bg-slate-300 transition">Taomlar</button>
+                                <button onclick="filterMenu('salat')" class="px-3 py-1 text-sm bg-slate-200 rounded hover:bg-slate-300 transition">Salatlar</button>
+                                <button onclick="filterMenu('ichimlik')" class="px-3 py-1 text-sm bg-slate-200 rounded hover:bg-slate-300 transition">Ichimliklar</button>
+                            </div>
+                            <div id="menu-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <!-- Dynamic Menu Items -->
+                            </div>
+                        </div>
                     </div>
-                    <!-- Mijozlar sonini boshqarish (Plus / Minus) -->
-                    <div class="bg-gray-50 border border-gray-200 px-4 py-1.5 rounded-xl flex items-center gap-3">
-                        <span class="text-xs font-bold text-gray-500 block">Mijozlar soni:</span>
-                        <div class="flex items-center gap-1.5">
-                            <button type="button" onclick="changeCustomerCount(-1)" class="w-7 h-7 bg-white border border-gray-300 rounded-lg font-bold text-gray-700 hover:bg-gray-100 transition shadow-sm">-</button>
-                            <input type="number" id="customerCountInput" value="1" min="1" readonly class="w-10 text-center font-extrabold text-blue-600 bg-transparent text-sm">
-                            <button type="button" onclick="changeCustomerCount(1)" class="w-7 h-7 bg-white border border-gray-300 rounded-lg font-bold text-gray-700 hover:bg-gray-100 transition shadow-sm">+</button>
+
+                    <!-- Current Order Summary & Actions -->
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-lg font-medium mb-3 text-slate-700">Tanlangan Stol: <span id="selected-table-label" class="text-indigo-600 font-bold">Tanlanmagan</span></h3>
+                            <div id="order-items-list" class="divide-y max-h-80 overflow-y-auto mb-4">
+                                <p class="text-slate-400 text-sm py-4 text-center">Hozircha mahsulot qo'shilmadi</p>
+                            </div>
+                        </div>
+
+                        <div class="border-t pt-4 space-y-3">
+                            <div class="flex justify-between font-bold text-lg">
+                                <span>Jami summa:</span>
+                                <span id="order-total-price">0 so'm</span>
+                            </div>
+                            <div id="order-status-badge" class="text-center py-1 px-3 rounded text-sm font-medium bg-slate-100 text-slate-600">
+                                Status: Yangi buyurtma
+                            </div>
+                            <button onclick="sendOrderToAdmin()" id="send-order-btn" class="w-full bg-indigo-600 text-white py-2.5 rounded-lg font-medium hover:bg-indigo-700 transition shadow">
+                                Adminga Yuborish / Tasdiqlash
+                            </button>
+                            <button onclick="openAddMoreModal()" id="add-more-btn" class="w-full bg-emerald-600 text-white py-2.5 rounded-lg font-medium hover:bg-emerald-700 transition shadow hidden">
+                                ➕ Buyurtma / Mijoz Qo'shish
+                            </button>
+                            <button onclick="printCheck()" class="w-full bg-slate-800 text-white py-2.5 rounded-lg font-medium hover:bg-slate-900 transition shadow">
+                                🖨️ Check Chiqarish (Print)
+                            </button>
                         </div>
                     </div>
                 </div>
-                <div class="flex items-center gap-4">
-                    <span class="text-sm font-bold text-gray-600">Savat: <b id="cartCount" class="text-blue-600 text-lg">0</b> ta</span>
-                    <button onclick="submitWaiterOrder()" class="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-xl shadow transition flex items-center gap-2">
-                        <i class="fa-solid fa-paper-plane"></i> Buyurtmani yuborish
-                    </button>
-                </div>
-            </div>
-            <div id="cartDetails" class="bg-blue-50 border border-blue-200 p-4 rounded-2xl mb-6 hidden">
-                <h4 class="font-bold text-blue-900 mb-2">Tanlangan taomlar:</h4>
-                <div id="cartItemsList" class="flex flex-wrap gap-2 mb-2"></div>
-                <div class="text-right font-extrabold text-blue-900 text-lg">Jami summasi: <span id="cartTotalSum">0</span> so'm</div>
-            </div>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="lg:col-span-2">
-                    <h3 class="font-bold text-lg mb-3 text-slate-800">Menyudan taom qo'shish:</h3>
-                    <div id="waiterMenuContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
-                </div>
-                <div>
-                    <h3 class="font-bold text-lg mb-3 text-slate-800">Mening buyurtmalarim va chek chiqarish:</h3>
-                    <div id="waiterOrdersList" class="space-y-4"></div>
-                </div>
-            </div>
-        </section>
-        <!-- 3. ADMIN PANELI -->
-        <section id="adminPage" class="page">
-            <!-- STATISTIKA VA FINANS KARTALARI -->
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-                <div onclick="openModal('tushumModal')" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md transition">
-                    <span class="text-xs text-gray-500 font-bold block">JAMI TUSHUM <i class="fa-solid fa-circle-info text-blue-400"></i></span>
-                    <span id="statTotalRev" class="text-lg font-black text-blue-600">0 so'm</span>
-                </div>
-                <div class="bg-white p-4 rounded-2xl shadow-sm border border-green-200 bg-green-50/30 text-center">
-                    <span class="text-xs text-green-700 font-bold block">SOF FOYDA <i class="fa-solid fa-chart-line ml-1"></i></span>
-                    <span id="statNetProfit" class="text-lg font-black text-green-600">0 so'm</span>
-                </div>
-                <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 text-center">
-                    <span class="text-xs text-gray-500 font-bold block">BAND STOLLAR</span>
-                    <span id="statTablesCount" class="text-xl font-black text-purple-600">0 ta</span>
-                </div>
-                <div onclick="openModal('mahsulotModal')" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md transition">
-                    <span class="text-xs text-gray-500 font-bold block">SOTILGAN MAHSULOT <i class="fa-solid fa-circle-info text-blue-400"></i></span>
-                    <span id="statItemsSold" class="text-xl font-black text-orange-600">0 ta</span>
-                </div>
-                <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 text-center col-span-2 md:col-span-1">
-                    <span class="text-xs text-gray-500 font-bold block">TO'LOV TURLARI</span>
-                    <div class="text-[11px] text-left mt-1 font-bold">
-                        <div>💵 Naqd: <span id="statPayCash" class="text-green-700">0</span></div>
-                        <div>💳 Plastik: <span id="statPayCard" class="text-blue-700">0</span></div>
-                        <div>📲 O'tkazma: <span id="statPayTransfer" class="text-purple-700">0</span></div>
+            </section>
+
+            <!-- ADMIN PANEL -->
+            <section id="admin-panel" class="space-y-6 hidden">
+                <h2 class="text-2xl font-semibold text-slate-700">Admin va Oshxona Boshqaruvi</h2>
+                
+                <!-- Live Orders Dashboard -->
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-medium mb-3 text-slate-700">Kelib tushgan buyurtmalar</h3>
+                    <div id="admin-orders-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Dynamic Admin Orders -->
+                        <p class="text-slate-400 text-sm">Hozircha faol buyurtmalar yo'q.</p>
                     </div>
                 </div>
-            </div>
-            <!-- ADMIN TABLARI -->
-            <div class="flex gap-4 border-b mb-6 overflow-x-auto">
-                <button onclick="switchAdminTab('ordersNav')" id="tabOrdersBtn" class="py-2 px-4 border-b-2 border-blue-600 font-bold text-blue-600 whitespace-nowrap">Buyurtmalar va Kassa</button>
-                <button onclick="switchAdminTab('menuManage')" id="tabMenuBtn" class="py-2 px-4 font-bold text-gray-500 whitespace-nowrap">Menyu va Tannarx</button>
-                <button onclick="switchAdminTab('warehouseManage')" id="tabWarehouseBtn" class="py-2 px-4 font-bold text-gray-500 whitespace-nowrap">📦 Omborxona va Statistika</button>
-            </div>
-            <!-- 1. BUYURTMALAR TABI -->
-            <div id="ordersNavTab">
-                <h3 class="text-xl font-bold mb-4">Barcha buyurtmalar, Ofitsiantlar va To'lovlar</h3>
-                <div id="adminOrdersContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-            </div>
-            <!-- 2. MENYU VA TANNARXNI BOSHQARISH -->
-            <div id="menuManageTab" class="hidden">
-                <div class="bg-white p-6 rounded-2xl shadow-md mb-8 border border-gray-100">
-                    <h3 id="formTitle" class="text-lg font-bold mb-4">Yangi taom / Ichimlik qo'shish</h3>
-                    <form onsubmit="saveProduct(event)" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                        <input type="hidden" id="editProductId">
-                        <input type="text" id="prodName" placeholder="Taom nomi" required class="p-2.5 border rounded-xl text-sm">
-                        <select id="prodCategory" class="p-2.5 border rounded-xl text-sm">
-                            <option value="taom">Taom</option>
-                            <option value="salat">Salat</option>
-                            <option value="ichimlik">Ichimlik</option>
-                        </select>
-                        <input type="number" id="prodCost" placeholder="Tannarx (Ichki narx)" required class="p-2.5 border border-red-300 rounded-xl bg-red-50/50 text-sm">
-                        <input type="number" id="prodPrice" placeholder="Sotuv narxi (Tashqi)" required class="p-2.5 border border-green-300 rounded-xl bg-green-50/50 text-sm">
-                        <input type="text" id="prodImg" placeholder="Rasm URL havolasi" required class="p-2.5 border rounded-xl text-sm">
-                        <div class="flex gap-2">
-                            <button type="submit" id="saveBtn" class="bg-green-600 text-white font-bold py-2.5 px-4 rounded-xl flex-1 text-sm">Saqlash</button>
-                            <button type="button" onclick="resetForm()" id="cancelEditBtn" class="bg-gray-400 text-white font-bold py-2.5 px-3 rounded-xl hidden">X</button>
+
+                <!-- Statistics & Ratings Dashboard -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                        <h3 class="text-lg font-medium mb-3 text-indigo-600">🏆 Eng ko'p sotilgan Taomlar</h3>
+                        <div id="ranking-taom" class="space-y-2">
+                            <!-- Dynamic Taom Rating -->
                         </div>
-                    </form>
-                </div>
-                <div class="bg-white rounded-2xl shadow-md overflow-hidden border border-gray-100">
-                    <table class="w-full text-left border-collapse text-xs md:text-sm">
-                        <thead class="bg-slate-100">
-                            <tr>
-                                <th class="p-4">Rasm</th>
-                                <th class="p-4">Nomi</th>
-                                <th class="p-4">Kategoriya</th>
-                                <th class="p-4 text-red-600">Ichki Narx (Tannarx)</th>
-                                <th class="p-4 text-green-600">Sotuv Narxi</th>
-                                <th class="p-4 text-blue-600">1 ta Taom Foydasi</th>
-                                <th class="p-4 text-right">Amallar</th>
-                            </tr>
-                        </thead>
-                        <tbody id="adminMenuTable" class="divide-y"></tbody>
-                    </table>
-                </div>
-            </div>
-            <!-- 3. OMBORXONA TABI -->
-            <div id="warehouseManageTab" class="hidden">
-                <div class="bg-white p-6 rounded-2xl shadow-md mb-8 border border-gray-100">
-                    <h3 id="warehouseFormTitle" class="text-lg font-bold mb-4">Omborga mahsulot qo'shish (Qidirish yoki Yangi kiritish)</h3>
-                    <div class="mb-4 relative">
-                        <label class="block text-xs font-bold text-gray-500 mb-1">Mavjud ombor mahsulotlaridan qidirib qo'shish:</label>
-                        <input type="text" id="warehouseSearchInput" placeholder="Mahsulot nomini yozib qidiring (masalan: Guruch, Cola)..." oninput="handleWarehouseSearchInput(this.value)" class="w-full p-3 border rounded-xl text-sm bg-blue-50/30">
-                        <div id="warehouseSearchResults" class="absolute left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg mt-1 max-h-48 overflow-y-auto z-20 hidden"></div>
                     </div>
-                    <form onsubmit="saveIngredient(event)" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-                        <input type="hidden" id="editIngId">
-                        <input type="text" id="ingName" placeholder="Nomi" required class="p-2.5 border rounded-xl text-sm" readonly>
-                        <input type="number" step="0.1" id="ingAmount" placeholder="Miqdori (litr, dona, gramm)" required class="p-2.5 border rounded-xl text-sm">
-                        <select id="ingUnit" class="p-2.5 border rounded-xl text-sm">
-                            <option value="gram">gram</option>
-                            <option value="kg">kg</option>
-                            <option value="litr">litr</option>
-                            <option value="dona">dona</option>
-                        </select>
-                        <input type="number" id="ingCost" placeholder="Harid narxi (1 birlik)" required class="p-2.5 border rounded-xl text-sm">
-                        <input type="text" id="ingImg" placeholder="Rasm URL havolasi" required class="p-2.5 border rounded-xl text-sm">
-                        <div class="flex gap-2">
-                            <button type="submit" id="saveIngBtn" class="bg-blue-600 text-white font-bold py-2.5 px-4 rounded-xl flex-1 text-sm">Saqlash</button>
-                            <button type="button" onclick="resetWarehouseForm()" id="cancelIngEditBtn" class="bg-gray-400 text-white font-bold py-2.5 px-3 rounded-xl hidden">X</button>
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                        <h3 class="text-lg font-medium mb-3 text-emerald-600">🥗 Eng ko'p sotilgan Salatlar</h3>
+                        <div id="ranking-salat" class="space-y-2">
+                            <!-- Dynamic Salat Rating -->
                         </div>
-                    </form>
-                    <div id="newProductNotice" class="mt-3 text-xs text-orange-600 font-bold hidden">
-                        ⚠️ Omborda bu nomdagi mahsulot topilmadi. Ma'lumotlarni to'ldirib saqlasangiz, <b>yangi mahsulot</b> sifatida qo'shiladi.
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                        <h3 class="text-lg font-medium mb-3 text-amber-600">🥤 Eng ko'p sotilgan Ichimliklar</h3>
+                        <div id="ranking-ichimlik" class="space-y-2">
+                            <!-- Dynamic Ichimlik Rating -->
+                        </div>
                     </div>
                 </div>
-                <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
-                    <h4 class="font-bold text-lg text-slate-800">Omborxona qoldiqlari va sarflanish tarixi</h4>
-                    <div class="flex gap-2">
-                        <button onclick="exportWarehouseData('excel')" class="bg-green-600 hover:bg-green-700 text-white text-xs font-bold px-4 py-2 rounded-xl shadow"><i class="fa-solid fa-file-excel mr-1"></i> Excel</button>
-                        <button onclick="exportWarehouseData('word')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-xl shadow"><i class="fa-solid fa-file-word mr-1"></i> Word</button>
-                        <button onclick="exportWarehouseData('pdf')" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2 rounded-xl shadow"><i class="fa-solid fa-file-pdf mr-1"></i> PDF / Chop etish</button>
-                    </div>
-                </div>
-                <div id="warehousePrintArea" class="bg-white rounded-2xl shadow-md overflow-hidden border border-gray-100 mb-8">
-                    <table class="w-full text-left border-collapse text-xs md:text-sm">
-                        <thead class="bg-slate-100">
-                            <tr>
-                                <th class="p-4">Rasm</th>
-                                <th class="p-4">Nomi</th>
-                                <th class="p-4">Mavjud Qoldiq</th>
-                                <th class="p-4">O'lchov Birligi</th>
-                                <th class="p-4">Harid Narxi</th>
-                                <th class="p-4 text-right">Amallar</th>
-                            </tr>
-                        </thead>
-                        <tbody id="warehouseTable" class="divide-y"></tbody>
-                    </table>
-                </div>
-                <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
-                    <h4 class="font-bold text-lg mb-4 text-slate-800">Tovar va Ovqatlar Sarflanishi (Kirim-Chiqim tarixi)</h4>
-                    <div class="max-h-60 overflow-y-auto">
-                        <table class="w-full text-left border-collapse text-xs md:text-sm">
-                            <thead class="bg-slate-100 sticky top-0">
-                                <tr>
-                                    <th class="p-2.5">Vaqt</th>
-                                    <th class="p-2.5">Sotilgan Taom / Mahsulot</th>
-                                    <th class="p-2.5">Sarflangan Xomashyo / Miqdor</th>
-                                </tr>
-                            </thead>
-                            <tbody id="consumptionLogTable" class="divide-y"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-    <!-- MODAL 1: TUSHUM VA FOYDA -->
-    <div id="tushumModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex justify-center items-center z-50">
-        <div class="bg-white p-6 rounded-3xl shadow-2xl w-full max-w-3xl relative">
-            <button onclick="closeModal('tushumModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
-            <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
-                <h3 class="text-xl font-extrabold text-slate-800 flex items-center gap-2">
-                    <i class="fa-solid fa-clock-rotate-left text-green-600"></i> To'lovlar va Sof Foyda Tarixi
-                </h3>
-                <div class="flex gap-2">
-                    <button onclick="exportReportData('excel', 'tushum')" class="bg-green-600 hover:bg-green-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow"><i class="fa-solid fa-file-excel mr-1"></i> Excel</button>
-                    <button onclick="exportReportData('word', 'tushum')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow"><i class="fa-solid fa-file-word mr-1"></i> Word</button>
-                    <button onclick="exportReportData('pdf', 'tushum')" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow"><i class="fa-solid fa-file-pdf mr-1"></i> PDF</button>
-                </div>
-            </div>
-            <div class="max-h-80 overflow-y-auto" id="tushumModalPrintArea">
-                <table id="tushumReportTable" class="w-full text-left border-collapse text-xs md:text-sm">
-                    <thead class="bg-slate-100 sticky top-0">
-                        <tr>
-                            <th class="p-2.5">Vaqt</th>
-                            <th class="p-2.5">Stol</th>
-                            <th class="p-2.5">Ofitsiant</th>
-                            <th class="p-2.5">To'lov Turi</th>
-                            <th class="p-2.5">Tushum</th>
-                            <th class="p-2.5 text-right text-green-600">Sof Foyda</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tushumModalTableBody" class="divide-y"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-    <!-- MODAL 2: SOTILGAN MAHSULOT -->
-    <div id="mahsulotModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex justify-center items-center z-50">
-        <div class="bg-white p-6 rounded-3xl shadow-2xl w-full max-w-3xl relative">
-            <button onclick="closeModal('mahsulotModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
-            <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
-                <h3 class="text-xl font-extrabold text-slate-800 flex items-center gap-2">
-                    <i class="fa-solid fa-burger text-orange-500"></i> Sotilgan Taomlar Analitikasi
-                </h3>
-                <div class="flex gap-2">
-                    <button onclick="exportReportData('excel', 'mahsulot')" class="bg-green-600 hover:bg-green-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow"><i class="fa-solid fa-file-excel mr-1"></i> Excel</button>
-                    <button onclick="exportReportData('word', 'mahsulot')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow"><i class="fa-solid fa-file-word mr-1"></i> Word</button>
-                    <button onclick="exportReportData('pdf', 'mahsulot')" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow"><i class="fa-solid fa-file-pdf mr-1"></i> PDF</button>
-                </div>
-            </div>
-            <div class="max-h-80 overflow-y-auto" id="mahsulotModalPrintArea">
-                <table id="mahsulotReportTable" class="w-full text-left border-collapse text-xs md:text-sm">
-                    <thead class="bg-slate-100 sticky top-0">
-                        <tr>
-                            <th class="p-2.5">Taom Nomi</th>
-                            <th class="p-2.5">Soni</th>
-                            <th class="p-2.5">Ichki Narx</th>
-                            <th class="p-2.5">Sotuv Narxi</th>
-                            <th class="p-2.5 text-right text-green-600">Jami Sof Foyda</th>
-                        </tr>
-                    </thead>
-                    <tbody id="mahsulotModalTableBody" class="divide-y"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-    <!-- ADMIN TO'LOV MODAL -->
-    <div id="paymentModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex justify-center items-center z-50">
-        <div class="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-md relative">
-            <button onclick="closePaymentModal()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
-            <h3 class="text-xl font-extrabold mb-4 text-slate-800">To'lovni tasdiqlash</h3>
-            <p class="text-sm text-gray-600 mb-2">Buyurtma: <b id="payModalOrderId" class="text-blue-600"></b></p>
-            <p class="text-xl font-black text-green-600 mb-6">To'lov summasi: <span id="payModalTotal"></span> so'm</p>
-            <input type="hidden" id="payModalOrderRealId">
-            <input type="hidden" id="payModalTableId">
-            <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">To'lov turini tanlang:</label>
-            <div class="grid grid-cols-3 gap-3 mb-6">
-                <button type="button" onclick="selectPayType('Naqd')" id="payTypeCash" class="pay-type-btn p-3 rounded-xl border-2 font-bold text-xs border-green-600 bg-green-50 text-green-700">Naqd</button>
-                <button type="button" onclick="selectPayType('Plastik')" id="payTypeCard" class="pay-type-btn p-3 rounded-xl border-2 font-bold text-xs border-gray-200 text-gray-600">Plastik</button>
-                <button type="button" onclick="selectPayType('O\'tkazma')" id="payTypeTransfer" class="pay-type-btn p-3 rounded-xl border-2 font-bold text-xs border-gray-200 text-gray-600">O'tkazma</button>
-            </div>
-            <button onclick="confirmPayment()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold p-3 rounded-xl transition">
-                To'lovni qabul qilish va Stolni bo'shatish
-            </button>
-        </div>
-    </div>
-    <!-- LOGIN MODAL -->
-    <div id="loginModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex justify-center items-center z-50">
-        <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md relative">
-            <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
-            <h2 class="text-2xl font-bold mb-6 text-center text-slate-800">Tizimga kirish</h2>
-            <form onsubmit="handleLogin(event)">
-                <div class="mb-4">
-                    <label class="block text-sm font-semibold mb-2">Login (ofitsiant1, ofitsiant2, ofitsiant3 yoki admin)</label>
-                    <input type="text" id="loginUser" required class="w-full p-3 border rounded-xl">
-                </div>
-                <div class="mb-6">
-                    <label class="block text-sm font-semibold mb-2">Parol (123 yoki admin123)</label>
-                    <input type="password" id="loginPass" required class="w-full p-3 border rounded-xl">
-                </div>
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-3 rounded-xl">Kirish</button>
-            </form>
-        </div>
-    </div>
-    <script>
-        const defaultMenu = [
-            { id: 1, name: "Osh", category: "taom", cost: 30000, price: 40000, img: "https://images.unsplash.com/photo-1633964913295-ceb43826e7c9?auto=format&fit=crop&w=500&q=80" },
-            { id: 2, name: "Chuchvara", category: "taom", cost: 22000, price: 30000, img: "https://images.unsplash.com/photo-1541696432-82c6da8ce7bf?auto=format&fit=crop&w=500&q=80" },
-            { id: 3, name: "Mastava", category: "taom", cost: 21000, price: 30000, img: "https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=500&q=80" },
-            { id: 4, name: "Bifsteks", category: "taom", cost: 32000, price: 45000, img: "https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&w=500&q=80" },
-            { id: 5, name: "Bifstrogonov", category: "taom", cost: 36000, price: 50000, img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=500&q=80" },
-            { id: 6, name: "Norin", category: "taom", cost: 35000, price: 48000, img: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=500&q=80" },
-            { id: 7, name: "Manti", category: "taom", cost: 25000, price: 35000, img: "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?auto=format&fit=crop&w=500&q=80" },
-            { id: 8, name: "Shakarob", category: "salat", cost: 8000, price: 12000, img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=500&q=80" },
-            { id: 9, name: "Olivie", category: "salat", cost: 10000, price: 15000, img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=500&q=80" },
-            { id: 10, name: "Mujkoy Kapriz", category: "salat", cost: 14000, price: 20000, img: "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?auto=format&fit=crop&w=500&q=80" },
-            { id: 11, name: "Gretskiy salat", category: "salat", cost: 12000, price: 18000, img: "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=500&q=80" },
-            { id: 12, name: "Coca-Cola 1L", category: "ichimlik", cost: 8000, price: 12000, img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=500&q=80" },
-            { id: 13, name: "Qora choy", category: "ichimlik", cost: 3000, price: 5000, img: "https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=500&q=80" },
-            { id: 14, name: "Ko'k choy", category: "ichimlik", cost: 3000, price: 5000, img: "https://images.unsplash.com/photo-1597481499750-3e6b22637e12?auto=format&fit=crop&w=500&q=80" }
-        ];
-        const defaultWarehouse = [
-            { id: 1, name: "Guruch", amount: 50000, unit: "gram", cost: 5000, img: "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=200&q=80" },
-            { id: 2, name: "Go'sht", amount: 30000, unit: "gram", cost: 70000, img: "https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?auto=format&fit=crop&w=200&q=80" },
-            { id: 3, name: "Sabzi", amount: 40000, unit: "gram", cost: 4000, img: "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?auto=format&fit=crop&w=200&q=80" },
-            { id: 4, name: "Yog'", amount: 15000, unit: "gram", cost: 18000, img: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=200&q=80" },
-            { id: 5, name: "Piyoz", amount: 20000, unit: "gram", cost: 3000, img: "https://images.unsplash.com/photo-1508747703725-719777637510?auto=format&fit=crop&w=200&q=80" },
-            { id: 6, name: "Coca-Cola 1L", amount: 50, unit: "dona", cost: 8000, img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=200&q=80" },
-            { id: 7, name: "Suv 0.5L", amount: 30, unit: "dona", cost: 2000, img: "https://images.unsplash.com/photo-1548839140-29a749e1cf4d?auto=format&fit=crop&w=200&q=80" }
-        ];
-        const dishRecipes = {
-            "Osh": { "Guruch": 250, "Go'sht": 200, "Sabzi": 300, "Yog'": 50, "Piyoz": 50 },
-            "Chuchvara": { "Go'sht": 150, "Piyoz": 80 },
-            "Mastava": { "Guruch": 80, "Go'sht": 120, "Sabzi": 50, "Piyoz": 50, "Yog'": 30 },
-            "Bifsteks": { "Go'sht": 220, "Yog'": 40 },
-            "Bifstrogonov": { "Go'sht": 200, "Piyoz": 60, "Yog'": 40 },
-            "Norin": { "Go'sht": 180, "Piyoz": 40 },
-            "Manti": { "Go'sht": 150, "Piyoz": 100 },
-            "Shakarob": { "Piyoz": 50 },
-            "Olivie": { "Kolbasa": 80 },
-            "Mujkoy Kapriz": { "Go'sht": 100 },
-            "Gretskiy salat": { "Piyoz": 20 },
-            "Coca-Cola 1L": { "Coca-Cola 1L": 1 },
-        };
-        const MENU_VERSION = "v18.0_azamat_umid_restaurant";
-        if (localStorage.getItem('resto_version_check') !== MENU_VERSION) {
-            localStorage.setItem('resto_menu', JSON.stringify(defaultMenu));
-            localStorage.setItem('resto_warehouse', JSON.stringify(defaultWarehouse));
-            localStorage.setItem('resto_consumption_log', JSON.stringify([]));
-            localStorage.setItem('resto_version_check', MENU_VERSION);
-        }
-        let menuData = JSON.parse(localStorage.getItem('resto_menu')) || defaultMenu;
-        let warehouseData = JSON.parse(localStorage.getItem('resto_warehouse')) || defaultWarehouse;
-        let consumptionLog = JSON.parse(localStorage.getItem('resto_consumption_log')) || [];
-        let tablesData = JSON.parse(localStorage.getItem('resto_tables')) || Array.from({ length: 12 }, (_, i) => ({ id: i + 1, guests: (i % 4) + 2, status: 'bo\'sh' }));
-        let ordersData = JSON.parse(localStorage.getItem('resto_orders')) || [];
-        let selectedTableId = 1;
-        let selectedPayTypeVal = 'Naqd';
-        let cart = [];
-        
-        // F5 da rol adashib qolmasligi uchun alohida o'qib olinadi
-        let currentUserRole = localStorage.getItem('resto_user_role') || 'customer';
-        let currentWaiterName = localStorage.getItem('resto_waiter_name') || '';
+            </section>
 
-        document.addEventListener('DOMContentLoaded', () => {
-            renderCustomerMenu('all');
-            renderTables();
-            renderWaiterMenu();
-            renderAdminOrders();
-            renderAdminMenu();
-            renderWarehouse();
-            renderConsumptionLog();
-            updateStats();
+        </main>
+    </div>
 
-            // Sahifa yuklanganda saqlangan aniq rol bo'yicha ochiladi
-            navigateRole(currentUserRole, currentWaiterName);
-        });
-
-        function changeCustomerCount(amount) {
-            const currentTable = tablesData.find(t => t.id === selectedTableId);
-            if (!currentTable) return;
-            currentTable.guests = Math.max(1, currentTable.guests + amount);
-            document.getElementById('customerCountInput').value = currentTable.guests;
-            localStorage.setItem('resto_tables', JSON.stringify(tablesData));
-            renderTables(false);
-        }
-
-        function renderWarehouse() {
-            const tbody = document.getElementById('warehouseTable');
-            if (!tbody) return;
-            tbody.innerHTML = '';
-            warehouseData.forEach(item => {
-                tbody.innerHTML += `
-                    <tr class="hover:bg-gray-50 border-b">
-                        <td class="p-3"><img src="${item.img}" class="w-12 h-12 rounded-lg object-cover"></td>
-                        <td class="p-3 font-bold text-slate-800">${item.name}</td>
-                        <td class="p-3 font-extrabold ${item.amount < 10 ? 'text-red-600' : 'text-blue-600'}">${item.amount.toLocaleString()}</td>
-                        <td class="p-3 font-semibold text-gray-500">${item.unit}</td>
-                        <td class="p-3 font-extrabold text-green-600">${(item.cost || 0).toLocaleString()} so'm</td>
-                        <td class="p-3 text-right space-x-2">
-                            <button onclick="editWarehouseItem(${item.id})" class="bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg font-bold text-xs hover:bg-blue-200"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="deleteWarehouseItem(${item.id})" class="bg-red-100 text-red-600 px-3 py-1.5 rounded-lg font-bold text-xs hover:bg-red-200"><i class="fa-solid fa-trash"></i></button>
-                        </td>
+    <!-- Hidden Print Area -->
+    <div id="print-area" class="hidden p-8 bg-white text-black max-w-sm mx-auto">
+        <div class="text-center space-y-1 mb-4">
+            <h2 class="text-xl font-bold">GRAND RESTAURANT</h2>
+            <p class="text-xs text-slate-600">Mazali taomlar va yuqori darajdagi xizmat</p>
+            <p class="text-xs text-slate-500" id="print-date">Sana: --/--/---- --:--</p>
+            <p class="text-sm font-semibold mt-2" id="print-table-info">Stol: -</p>
+        </div>
+        <div class="border-t border-b border-dashed py-2 my-2">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b text-left text-xs">
+                        <th class="py-1">Mahsulot</th>
+                        <th class="py-1 text-center">Miqdor</th>
+                        <th class="py-1 text-right">Narx</th>
                     </tr>
+                </thead>
+                <tbody id="print-items-body">
+                    <!-- Dynamic Print Items -->
+                </tbody>
+            </table>
+        </div>
+        <div class="flex justify-between font-bold text-base my-2">
+            <span>Jami:</span>
+            <span id="print-total-price">0 so'm</span>
+        </div>
+        <div class="mt-6 flex flex-col items-center justify-center space-y-2">
+            <canvas id="print-qrcode" class="w-28 h-28"></canvas>
+            <p class="text-xs text-slate-500 text-center">Tashrifingiz uchun rahmat!</p>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Mock Database & State
+        const menuItems = [
+            { id: 1, name: 'Osh (Plov)', category: 'taom', price: 35000 },
+            { id: 2, name: 'Manti', category: 'taom', price: 30000 },
+            { id: 3, name: 'Shashlik (Qiyma)', category: 'taom', price: 15000 },
+            { id: 4, name: 'Achiq-chuchuk', category: 'salat', price: 8000 },
+            { id: 5, name: 'Olivye', category: 'salat', price: 12000 },
+            { id: 6, name: 'Coca-Cola 1L', category: 'ichimlik', price: 10000 },
+            { id: 7, name: '1L Choy (Ko\'k/Qora)', category: 'ichimlik', price: 5000 }
+        ];
+
+        let tables = [
+            { id: 1, name: 'Stol 1', status: 'bosh' },
+            { id: 2, name: 'Stol 2', status: 'bosh' },
+            { id: 3, name: 'Stol 3', status: 'bosh' },
+            { id: 4, name: 'Stol 4', status: 'bosh' },
+            { id: 5, name: 'Stol 5', status: 'bosh' },
+            { id: 6, name: 'Stol 6', status: 'bosh' }
+        ];
+
+        let selectedTableId = null;
+        let currentDraftOrder = {}; // { itemId: quantity }
+        let activeOrders = {}; // tableId -> Order Object
+        let salesStats = { taom: {}, salat: {}, ichimlik: {} };
+
+        // Initialize App
+        window.onload = function() {
+            renderTables();
+            renderMenu('all');
+            renderRankings();
+        };
+
+        // Tab Switcher
+        function switchTab(role) {
+            const waiterPanel = document.getElementById('waiter-panel');
+            const adminPanel = document.getElementById('admin-panel');
+            const btnWaiter = document.getElementById('btn-waiter');
+            const btnAdmin = document.getElementById('btn-admin');
+
+            if (role === 'waiter') {
+                waiterPanel.classList.remove('hidden');
+                adminPanel.classList.add('hidden');
+                btnWaiter.className = "px-4 py-2 bg-indigo-700 rounded font-medium transition hover:bg-indigo-800";
+                btnAdmin.className = "px-4 py-2 bg-indigo-500 rounded font-medium transition hover:bg-indigo-600";
+            } else {
+                waiterPanel.classList.add('hidden');
+                adminPanel.classList.remove('hidden');
+                btnAdmin.className = "px-4 py-2 bg-indigo-700 rounded font-medium transition hover:bg-indigo-800";
+                btnWaiter.className = "px-4 py-2 bg-indigo-500 rounded font-medium transition hover:bg-indigo-600";
+                renderAdminOrders();
+                renderRankings();
+            }
+        }
+
+        // Render Tables
+        function renderTables() {
+            const container = document.getElementById('tables-container');
+            container.innerHTML = '';
+            tables.forEach(table => {
+                const isSelected = selectedTableId === table.id;
+                let bgClass = "bg-white border-slate-200 hover:border-indigo-400";
+                if (table.status === 'band') bgClass = "bg-amber-50 border-amber-300 text-amber-800";
+                if (isSelected) bgClass = "bg-indigo-600 text-white border-indigo-600 shadow-md";
+
+                container.innerHTML += `
+                    <button onclick="selectTable(${table.id})" class="p-3 rounded-lg border text-center transition font-medium flex flex-col items-center justify-center ${bgClass}">
+                        <span>${table.name}</span>
+                        <span class="text-xs mt-1 opacity-75">${table.status === 'band' ? 'Band' : 'Bo\'sh'}</span>
+                    </button>
                 `;
             });
         }
 
-        function handleWarehouseSearchInput(query) {
-            const resultsContainer = document.getElementById('warehouseSearchResults');
-            const noticeBox = document.getElementById('newProductNotice');
-            const nameInput = document.getElementById('ingName');
-            resultsContainer.innerHTML = '';
-            if (!query.trim()) {
-                resultsContainer.classList.add('hidden');
-                noticeBox.classList.add('hidden');
-                nameInput.value = '';
+        // Select Table
+        function selectTable(tableId) {
+            selectedTableId = tableId;
+            const table = tables.find(t => t.id === tableId);
+            document.getElementById('selected-table-label').innerText = table.name;
+            
+            // Load existing order if available for this table
+            if (activeOrders[tableId]) {
+                currentDraftOrder = {...activeOrders[tableId].items};
+                updateOrderStatusUI(activeOrders[tableId].status);
+                document.getElementById('send-order-btn').classList.add('hidden');
+                document.getElementById('add-more-btn').classList.remove('hidden');
+            } else {
+                currentDraftOrder = {};
+                updateOrderStatusUI('Yangi buyurtma');
+                document.getElementById('send-order-btn').classList.remove('hidden');
+                document.getElementById('add-more-btn').classList.add('hidden');
+            }
+
+            renderTables();
+            renderOrderSummary();
+        }
+
+        // Filter Menu
+        function filterMenu(category) {
+            renderMenu(category);
+        }
+
+        // Render Menu with Plus/Minus Quantities
+        function renderMenu(category) {
+            const container = document.getElementById('menu-container');
+            container.innerHTML = '';
+            
+            const filtered = category === 'all' ? menuItems : menuItems.filter(i => i.category === category);
+            
+            filtered.forEach(item => {
+                const currentQty = currentDraftOrder[item.id] || 0;
+                container.innerHTML += `
+                    <div class="flex justify-between items-center p-3 border rounded-lg bg-slate-50">
+                        <div>
+                            <h4 class="font-medium text-slate-800">${item.name}</h4>
+                            <p class="text-xs text-indigo-600 font-semibold">${item.price.toLocaleString()} so'm</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="changeQuantity(${item.id}, -1)" class="w-8 h-8 bg-white border rounded-md flex items-center justify-center font-bold hover:bg-slate-100 transition">-</button>
+                            <span class="w-6 text-center font-medium text-sm" id="qty-${item.id}">${currentQty}</span>
+                            <button onclick="changeQuantity(${item.id}, 1)" class="w-8 h-8 bg-indigo-600 text-white rounded-md flex items-center justify-center font-bold hover:bg-indigo-700 transition">+</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Change Quantity via Plus/Minus
+        function changeQuantity(itemId, delta) {
+            if (!selectedTableId) {
+                alert("Iltimos, oldin stolni tanlang!");
                 return;
             }
-            const matched = warehouseData.filter(i => i.name.toLowerCase().includes(query.toLowerCase()));
-            if (matched.length > 0) {
-                resultsContainer.classList.remove('hidden');
-                noticeBox.classList.add('hidden');
-                matched.forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = "p-2.5 hover:bg-blue-50 cursor-pointer text-xs font-bold border-b flex justify-between items-center";
-                    div.innerHTML = `<span>${item.name} (${item.amount} ${item.unit})</span> <span class="text-blue-600">${item.cost} so'm</span>`;
-                    div.onclick = () => selectWarehouseExistingItem(item);
-                    resultsContainer.appendChild(div);
-                });
+            let current = currentDraftOrder[itemId] || 0;
+            current += delta;
+            if (current < 0) current = 0;
+            
+            if (current === 0) {
+                delete currentDraftOrder[itemId];
             } else {
-                resultsContainer.classList.add('hidden');
-                noticeBox.classList.remove('hidden');
-                nameInput.value = query;
+                currentDraftOrder[itemId] = current;
             }
+
+            // Update UI count inline
+            const qtySpan = document.getElementById(`qty-${itemId}`);
+            if (qtySpan) qtySpan.innerText = current;
+
+            renderOrderSummary();
         }
 
-        function selectWarehouseExistingItem(item) {
-            document.getElementById('warehouseSearchInput').value = item.name;
-            document.getElementById('ingName').value = item.name;
-            document.getElementById('ingAmount').value = '';
-            document.getElementById('ingUnit').value = item.unit;
-            document.getElementById('ingCost').value = item.cost;
-            document.getElementById('ingImg').value = item.img;
-            document.getElementById('editIngId').value = item.id;
-            document.getElementById('warehouseSearchResults').classList.add('hidden');
-            document.getElementById('newProductNotice').classList.add('hidden');
-            document.getElementById('warehouseFormTitle').innerText = `'${item.name}' miqdorini to'ldirish (Qo'shish)`;
-            document.getElementById('saveIngBtn').innerText = "Miqdorini qo'shish";
-            document.getElementById('cancelIngEditBtn').classList.remove('hidden');
+        // Render Order Summary
+        function renderOrderSummary() {
+            const listContainer = document.getElementById('order-items-list');
+            listContainer.innerHTML = '';
+
+            const itemIds = Object.keys(currentDraftOrder);
+            if (itemIds.length === 0) {
+                listContainer.innerHTML = `<p class="text-slate-400 text-sm py-4 text-center">Hozircha mahsulot qo'shilmadi</p>`;
+                document.getElementById('order-total-price').innerText = "0 so'm";
+                return;
+            }
+
+            let total = 0;
+            itemIds.forEach(id => {
+                const item = menuItems.find(m => m.id == id);
+                const qty = currentDraftOrder[id];
+                const sum = item.price * qty;
+                total += sum;
+
+                listContainer.innerHTML += `
+                    <div class="flex justify-between py-2 text-sm items-center">
+                        <div>
+                            <p class="font-medium text-slate-700">${item.name}</p>
+                            <p class="text-xs text-slate-400">${qty} x ${item.price.toLocaleString()} so'm</p>
+                        </div>
+                        <span class="font-semibold text-slate-800">${sum.toLocaleString()} so'm</span>
+                    </div>
+                `;
+            });
+
+            document.getElementById('order-total-price').innerText = total.toLocaleString() + " so'm";
         }
 
-        function saveIngredient(e) {
-            e.preventDefault();
-            const editId = document.getElementById('editIngId').value;
-            const searchInputVal = document.getElementById('warehouseSearchInput').value.trim();
-            const name = document.getElementById('ingName').value.trim() || searchInputVal;
-            const amount = parseFloat(document.getElementById('ingAmount').value);
-            const unit = document.getElementById('ingUnit').value;
-            const cost = parseFloat(document.getElementById('ingCost').value) || 0;
-            const img = document.getElementById('ingImg').value || "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=200&q=80";
-            if (!name) return alert("Mahsulot nomini kiriting!");
-            if (editId) {
-                warehouseData = warehouseData.map(i => i.id == editId ? { ...i, name, amount: i.amount + amount, unit, cost, img } : i);
-            } else {
-                const existing = warehouseData.find(i => i.name.toLowerCase() === name.toLowerCase());
-                if (existing) {
-                    existing.amount += amount;
-                    existing.cost = cost;
-                    existing.img = img;
-                } else {
-                    warehouseData.push({ id: Date.now(), name, amount, unit, cost, img });
+        // Send Order to Admin
+        function sendOrderToAdmin() {
+            if (!selectedTableId) {
+                alert("Stol tanlanmagan!");
+                return;
+            }
+            if (Object.keys(currentDraftOrder).length === 0) {
+                alert("Buyurtma bo'sh!");
+                return;
+            }
+
+            const table = tables.find(t => t.id === selectedTableId);
+            table.status = 'band';
+
+            activeOrders[selectedTableId] = {
+                tableId: selectedTableId,
+                tableName: table.name,
+                items: {...currentDraftOrder},
+                status: 'Qabul qilindi',
+                total: calculateTotal(currentDraftOrder)
+            };
+
+            updateOrderStatusUI('Qabul qilindi');
+            document.getElementById('send-order-btn').classList.add('hidden');
+            document.getElementById('add-more-btn').classList.remove('hidden');
+            renderTables();
+            alert("Buyurtma adminga muvaffaqiyatli yuborildi!");
+        }
+
+        // Open Add More Modal / Mode
+        function openAddMoreModal() {
+            alert("Endi qo'shimcha taom, salat yoki ichimlik tanlab yana buyurtmaga qo'shishingiz mumkin.");
+        }
+
+        // Calculate Total Helper
+        function calculateTotal(itemsObj) {
+            let total = 0;
+            for (let id in itemsObj) {
+                const item = menuItems.find(m => m.id == id);
+                if (item) total += item.price * itemsObj[id];
+            }
+            return total;
+        }
+
+        // Update Order Status UI in Waiter Panel
+        function updateOrderStatusUI(status) {
+            const badge = document.getElementById('order-status-badge');
+            badge.innerText = `Status: ${status}`;
+            badge.className = "text-center py-1 px-3 rounded text-sm font-medium ";
+            if (status === 'Qabul qilindi') badge.className += "bg-blue-100 text-blue-700";
+            else if (status === 'Tayyorlanyapti') badge.className += "bg-amber-100 text-amber-700";
+            else if (status === 'Tayyor') badge.className += "bg-emerald-100 text-emerald-700";
+            else badge.className += "bg-slate-100 text-slate-600";
+        }
+
+        // ADMIN FUNCTIONS
+        function renderAdminOrders() {
+            const container = document.getElementById('admin-orders-container');
+            container.innerHTML = '';
+
+            const orderKeys = Object.keys(activeOrders);
+            if (orderKeys.length === 0) {
+                container.innerHTML = `<p class="text-slate-400 text-sm">Hozircha faol buyurtmalar yo'q.</p>`;
+                return;
+            }
+
+            orderKeys.forEach(tableId => {
+                const order = activeOrders[tableId];
+                let itemsHtml = '';
+                for (let id in order.items) {
+                    const item = menuItems.find(m => m.id == id);
+                    itemsHtml += `<li class="text-xs text-slate-600">${item.name} - ${order.items[id]} dona</li>`;
+                }
+
+                container.innerHTML += `
+                    <div class="border rounded-xl p-4 bg-slate-50 space-y-3 shadow-sm">
+                        <div class="flex justify-between items-center">
+                            <h4 class="font-bold text-slate-800">${order.tableName}</h4>
+                            <span class="text-xs px-2 py-0.5 rounded font-medium bg-indigo-100 text-indigo-700">${order.status}</span>
+                        </div>
+                        <ul class="divide-y divide-slate-200 py-1">${itemsHtml}</ul>
+                        <div class="flex justify-between items-center text-sm font-semibold pt-2 border-t">
+                            <span>Jami: ${order.total.toLocaleString()} so'm</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-1 pt-1">
+                            <button onclick="updateOrderStatus(${tableId}, 'Qabul qilindi')" class="px-2 py-1 bg-blue-500 text-white rounded text-xs font-medium hover:bg-blue-600 transition">Qabul</button>
+                            <button onclick="updateOrderStatus(${tableId}, 'Tayyorlanyapti')" class="px-2 py-1 bg-amber-500 text-white rounded text-xs font-medium hover:bg-amber-600 transition">Jarayonda</button>
+                            <button onclick="updateOrderStatus(${tableId}, 'Tayyor')" class="px-2 py-1 bg-emerald-500 text-white rounded text-xs font-medium hover:bg-emerald-600 transition">Tayyor</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Admin updates status (Integration with Waiter Panel)
+        function updateOrderStatus(tableId, status) {
+            if (activeOrders[tableId]) {
+                activeOrders[tableId].status = status;
+                
+                // If status is 'Tayyor', record sales statistics
+                if (status === 'Tayyor') {
+                    recordSales(activeOrders[tableId].items);
+                }
+
+                renderAdminOrders();
+                
+                // If currently selected table matches, update waiter view too
+                if (selectedTableId == tableId) {
+                    updateOrderStatusUI(status);
                 }
             }
-            localStorage.setItem('resto_warehouse', JSON.stringify(warehouseData));
-            resetWarehouseForm();
-            renderWarehouse();
-            alert("Omborxona muvaffaqiyatli saqlandi!");
         }
 
-        function editWarehouseItem(id) {
-            const item = warehouseData.find(i => i.id === id);
-            if (!item) return;
-            document.getElementById('editIngId').value = item.id;
-            document.getElementById('warehouseSearchInput').value = item.name;
-            document.getElementById('ingName').value = item.name;
-            document.getElementById('ingAmount').value = '';
-            document.getElementById('ingUnit').value = item.unit;
-            document.getElementById('ingCost').value = item.cost || 0;
-            document.getElementById('ingImg').value = item.img;
-            document.getElementById('warehouseFormTitle').innerText = "Ombor mahsulotini tahrirlash";
-            document.getElementById('saveIngBtn').innerText = "Yangilash";
-            document.getElementById('cancelIngEditBtn').classList.remove('hidden');
-        }
-
-        function resetWarehouseForm() {
-            document.getElementById('editIngId').value = '';
-            document.getElementById('warehouseSearchInput').value = '';
-            document.getElementById('ingName').value = '';
-            document.getElementById('ingAmount').value = '';
-            document.getElementById('ingCost').value = '';
-            document.getElementById('ingImg').value = '';
-            document.getElementById('warehouseSearchResults').classList.add('hidden');
-            document.getElementById('newProductNotice').classList.add('hidden');
-            document.getElementById('warehouseFormTitle').innerText = "Omborga mahsulot qo'shish (Qidirish yoki Yangi kiritish)";
-            document.getElementById('saveIngBtn').innerText = "Saqlash";
-            document.getElementById('cancelIngEditBtn').classList.add('hidden');
-        }
-
-        function deleteWarehouseItem(id) {
-            if (confirm("Mahsulotni ombordan o'chirmoqchimisiz?")) {
-                warehouseData = warehouseData.filter(i => i.id !== id);
-                localStorage.setItem('resto_warehouse', JSON.stringify(warehouseData));
-                renderWarehouse();
+        // Record Sales for Rankings
+        function recordSales(itemsObj) {
+            for (let id in itemsObj) {
+                const item = menuItems.find(m => m.id == id);
+                if (!item) continue;
+                const cat = item.category;
+                if (!salesStats[cat][item.name]) {
+                    salesStats[cat][item.name] = 0;
+                }
+                salesStats[cat][item.name] += itemsObj[id];
             }
+            renderRankings();
         }
 
-        function renderConsumptionLog() {
-            const tbody = document.getElementById('consumptionLogTable');
-            if (!tbody) return;
-            tbody.innerHTML = '';
-            if (consumptionLog.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-gray-400">Hozircha sarflanish tarixi mavjud emas.</td></tr>`;
+        // Render Rankings for Admin Dashboard
+        function renderRankings() {
+            renderCategoryRanking('taom', 'ranking-taom');
+            renderCategoryRanking('salat', 'ranking-salat');
+            renderCategoryRanking('ichimlik', 'ranking-ichimlik');
+        }
+
+        function renderCategoryRanking(category, elementId) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = '';
+
+            const stats = salesStats[category];
+            const sorted = Object.keys(stats).sort((a, b) => stats[b] - stats[a]);
+
+            if (sorted.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400">Ma'lumot hali yo'q</p>`;
                 return;
             }
-            consumptionLog.forEach(log => {
-                tbody.innerHTML += `
-                    <tr class="hover:bg-gray-50 border-b">
-                        <td class="p-2.5 font-bold text-gray-600">${log.time}</td>
-                        <td class="p-2.5 font-bold text-slate-800">${log.dishName}</td>
-                        <td class="p-2.5 text-blue-600 font-semibold">${log.details}</td>
-                    </tr>
+
+            sorted.forEach((name, index) => {
+                container.innerHTML += `
+                    <div class="flex justify-between items-center text-sm py-1 border-b border-slate-100 last:border-0">
+                        <span class="text-slate-700">${index + 1}. ${name}</span>
+                        <span class="font-semibold text-slate-900">${stats[name]} ta</span>
+                    </div>
                 `;
             });
         }
 
-        function exportWarehouseData(type) {
-            if (type === 'excel') {
-                let csv = "Nomi,Qoldiq,Birlik,Narx\n";
-                warehouseData.forEach(i => { csv += `"${i.name}",${i.amount},"${i.unit}",${i.cost}\n`; });
-                let blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
-                let link = document.createElement("a");
-                link.href = URL.createObjectURL(blob);
-                link.download = "omborxona_qoldiqlari.csv";
-                link.click();
-            } else if (type === 'word') {
-                let html = "<html><head><meta charset='utf-8'></head><body><h2>Omborxona Hisoboti</h2><table border='1'><tr><th>Nomi</th><th>Qoldiq</th><th>Birlik</th><th>Narx</th></tr>";
-                warehouseData.forEach(i => { html += `<tr><td>${i.name}</td><td>${i.amount}</td><td>${i.unit}</td><td>${i.cost}</td></tr>`; });
-                html += "</table></body></html>";
-                let blob = new Blob(['\ufeff' + html], { type: 'application/msword' });
-                let link = document.createElement("a");
-                link.href = URL.createObjectURL(blob);
-                link.download = "omborxona_hisoboti.doc";
-                link.click();
-            } else if (type === 'pdf') {
+        // Print Check with QR Code
+        function printCheck() {
+            if (!selectedTableId || !activeOrders[selectedTableId]) {
+                alert("Bu stol uchun faol buyurtma mavjud emas!");
+                return;
+            }
+
+            const order = activeOrders[selectedTableId];
+            const now = new Date();
+            document.getElementById('print-date').innerText = `Sana: ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
+            document.getElementById('print-table-info').innerText = `Stol: ${order.tableName}`;
+
+            const tbody = document.getElementById('print-items-body');
+            tbody.innerHTML = '';
+
+            for (let id in order.items) {
+                const item = menuItems.find(m => m.id == id);
+                const qty = order.items[id];
+                const sum = item.price * qty;
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="py-1">${item.name}</td>
+                        <td class="py-1 text-center">${qty}</td>
+                        <td class="py-1 text-right">${sum.toLocaleString()}</td>
+                    </tr>
+                `;
+            }
+
+            document.getElementById('print-total-price').innerText = order.total.toLocaleString() + " so'm";
+
+            // Generate QR Code containing check information
+            const qrCanvas = document.getElementById('print-qrcode');
+            QRCode.toCanvas(qrCanvas, `Restoran: Grand Restaurant | Stol: ${order.tableName} | Jami: ${order.total} so'm | Sana: ${now.toLocaleString()}`, { width: 110 }, function (error) {
+                if (error) console.error(error);
                 window.print();
-            }
-        }
-
-        function exportReportData(type, reportType) {
-            let tableId = reportType === 'tushum' ? 'tushumReportTable' : 'mahsulotReportTable';
-            let fileName = reportType === 'tushum' ? 'tushum_va_foyda_hisoboti' : 'sotilgan_mahsulotlar_analitikasi';
-            if (type === 'excel') {
-                let table = document.getElementById(tableId);
-                let html = table.outerHTML;
-                let blob = new Blob(["\ufeff" + html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
-                let link = document.createElement("a");
-                link.href = URL.createObjectURL(blob);
-                link.download = fileName + ".xls";
-                link.click();
-            } else if (type === 'word') {
-                let header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'></head><body>";
-                let footer = "</body></html>";
-                let html = header + document.getElementById(tableId).outerHTML + footer;
-                let blob = new Blob(['\ufeff' + html], { type: 'application/msword;charset=utf-8;' });
-                let link = document.createElement("a");
-                link.href = URL.createObjectURL(blob);
-                link.download = fileName + ".doc";
-                link.click();
-            } else if (type === 'pdf') {
-                let printContent = document.getElementById(reportType === 'tushum' ? 'tushumModalPrintArea' : 'mahsulotModalPrintArea').innerHTML;
-                let win = window.open('', '', 'height=700,width=900');
-                win.document.write('<html><head><title>Hisobot</title>');
-                win.document.write('<style>table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 12px; } th { background-color: #f1f5f9; }</style>');
-                win.document.write('</head><body>');
-                win.document.write(`<h2>${reportType === 'tushum' ? "To'lovlar va Sof Foyda Hisoboti" : "Sotilgan Taomlar Analitikasi"}</h2>`);
-                win.document.write(printContent);
-                win.document.write('</body></html>');
-                win.document.close();
-                win.print();
-            }
-        }
-
-        function renderAdminMenu() {
-            const table = document.getElementById('adminMenuTable');
-            if(!table) return;
-            table.innerHTML = '';
-            menuData.forEach(item => {
-                const profit = item.price - (item.cost || 0);
-                table.innerHTML += `
-                    <tr class="border-b hover:bg-gray-50">
-                        <td class="p-3"><img src="${item.img}" class="w-12 h-12 rounded-lg object-cover"></td>
-                        <td class="p-3 font-bold text-slate-800">${item.name}</td>
-                        <td class="p-3 capitalize text-gray-500">${item.category}</td>
-                        <td class="p-3 font-extrabold text-red-600">${(item.cost || 0).toLocaleString()} so'm</td>
-                        <td class="p-3 font-extrabold text-green-600">${item.price.toLocaleString()} so'm</td>
-                        <td class="p-3 font-black text-blue-600">+${profit.toLocaleString()} so'm</td>
-                        <td class="p-3 text-right space-x-2">
-                            <button onclick="editProduct(${item.id})" class="bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg font-bold text-xs hover:bg-blue-200"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="deleteProduct(${item.id})" class="bg-red-100 text-red-600 px-3 py-1.5 rounded-lg font-bold text-xs hover:bg-red-200"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        function saveProduct(e) {
-            e.preventDefault();
-            const editId = document.getElementById('editProductId').value;
-            const name = document.getElementById('prodName').value;
-            const category = document.getElementById('prodCategory').value;
-            const cost = parseFloat(document.getElementById('prodCost').value) || 0;
-            const price = parseFloat(document.getElementById('prodPrice').value);
-            const img = document.getElementById('prodImg').value;
-            if (editId) {
-                menuData = menuData.map(p => p.id == editId ? { id: Number(editId), name, category, cost, price, img } : p);
-            } else {
-                menuData.push({ id: Date.now(), name, category, cost, price, img });
-            }
-            localStorage.setItem('resto_menu', JSON.stringify(menuData));
-            resetForm();
-            renderAdminMenu();
-            renderCustomerMenu('all');
-            renderWaiterMenu();
-        }
-
-        function editProduct(id) {
-            const prod = menuData.find(p => p.id === id);
-            if (!prod) return;
-            document.getElementById('editProductId').value = prod.id;
-            document.getElementById('prodName').value = prod.name;
-            document.getElementById('prodCategory').value = prod.category;
-            document.getElementById('prodCost').value = prod.cost || 0;
-            document.getElementById('prodPrice').value = prod.price;
-            document.getElementById('prodImg').value = prod.img;
-            document.getElementById('formTitle').innerText = "Taomni tahrirlash";
-            document.getElementById('saveBtn').innerText = "Yangilash";
-            document.getElementById('cancelEditBtn').classList.remove('hidden');
-        }
-
-        function resetForm() {
-            document.getElementById('editProductId').value = '';
-            document.getElementById('prodName').value = '';
-            document.getElementById('prodCost').value = '';
-            document.getElementById('prodPrice').value = '';
-            document.getElementById('prodImg').value = '';
-            document.getElementById('formTitle').innerText = "Yangi taom / Ichimlik qo'shish";
-            document.getElementById('saveBtn').innerText = "Saqlash";
-            document.getElementById('cancelEditBtn').classList.add('hidden');
-        }
-
-        function deleteProduct(id) {
-            if (confirm("Mahsulotni o'chirmoqchimisiz?")) {
-                menuData = menuData.filter(p => p.id !== id);
-                localStorage.setItem('resto_menu', JSON.stringify(menuData));
-                renderAdminMenu();
-                renderCustomerMenu('all');
-                renderWaiterMenu();
-            }
-        }
-
-        function confirmPayment() {
-            const orderId = document.getElementById('payModalOrderRealId').value;
-            const tableId = parseInt(document.getElementById('payModalTableId').value);
-            const ord = ordersData.find(o => o.id === orderId);
-            if(ord) {
-                ord.status = "To'landi";
-                ord.payType = selectedPayTypeVal;
-                ord.items.forEach(item => {
-                    const recipe = dishRecipes[item.name];
-                    let logDetailParts = [];
-                    if (recipe) {
-                        for (const [ingName, qtyNeeded] of Object.entries(recipe)) {
-                            const warehouseItem = warehouseData.find(w => w.name.toLowerCase() === ingName.toLowerCase());
-                            if (warehouseItem) {
-                                warehouseItem.amount = Math.max(0, warehouseItem.amount - qtyNeeded);
-                                logDetailParts.push(`${ingName}: -${qtyNeeded} ${warehouseItem.unit}`);
-                            }
-                        }
-                    } else {
-                        const warehouseItem = warehouseData.find(w => w.name.toLowerCase() === item.name.toLowerCase());
-                        if (warehouseItem) {
-                            warehouseItem.amount = Math.max(0, warehouseItem.amount - 1);
-                            logDetailParts.push(`${item.name}: -1 dona`);
-                        }
-                    }
-                    consumptionLog.unshift({
-                        time: new Date().toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-                        dishName: item.name,
-                        details: logDetailParts.join(', ') || "Sarflandi"
-                    });
-                });
-                localStorage.setItem('resto_warehouse', JSON.stringify(warehouseData));
-                localStorage.setItem('resto_consumption_log', JSON.stringify(consumptionLog));
-            }
-            const tbl = tablesData.find(t => t.id === tableId);
-            if(tbl) tbl.status = 'bo\'sh';
-            localStorage.setItem('resto_orders', JSON.stringify(ordersData));
-            localStorage.setItem('resto_tables', JSON.stringify(tablesData));
-            closePaymentModal();
-            renderTables();
-            renderAdminOrders();
-            renderWaiterOrders();
-            renderWarehouse();
-            renderConsumptionLog();
-            updateStats();
-            alert("To'lov qabul qilindi va ofitsiant paneliga xabar berildi!");
-        }
-
-        function updateStats() {
-            const paidOrders = ordersData.filter(o => o.status === "To'landi");
-            let totalRev = 0;
-            let totalCost = 0;
-            paidOrders.forEach(o => {
-                totalRev += o.total;
-                o.items.forEach(i => { totalCost += (i.cost || 0); });
-            });
-            const netProfit = totalRev - totalCost;
-            const itemsSold = paidOrders.reduce((sum, o) => sum + o.items.length, 0);
-            const tablesCount = tablesData.filter(t => t.status === 'band').length;
-            let cashTotal = paidOrders.filter(o => o.payType === 'Naqd').reduce((s, o) => s + o.total, 0);
-            let cardTotal = paidOrders.filter(o => o.payType === 'Plastik').reduce((s, o) => s + o.total, 0);
-            let transferTotal = paidOrders.filter(o => o.payType === 'O\'tkazma').reduce((s, o) => s + o.total, 0);
-            document.getElementById('statTotalRev').innerText = totalRev.toLocaleString() + " so'm";
-            document.getElementById('statNetProfit').innerText = netProfit.toLocaleString() + " so'm";
-            document.getElementById('statTablesCount').innerText = tablesCount + " ta";
-            document.getElementById('statItemsSold').innerText = itemsSold + " ta";
-            document.getElementById('statPayCash').innerText = cashTotal.toLocaleString() + " so'm";
-            document.getElementById('statPayCard').innerText = cardTotal.toLocaleString() + " so'm";
-            document.getElementById('statPayTransfer').innerText = transferTotal.toLocaleString() + " so'm";
-        }
-
-        function renderTushumModalDetails() {
-            const tbody = document.getElementById('tushumModalTableBody');
-            tbody.innerHTML = '';
-            const paidOrders = ordersData.filter(o => o.status === "To'landi");
-            if (paidOrders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-400">To'lovlar mavjud emas.</td></tr>`;
-                return;
-            }
-            paidOrders.forEach(ord => {
-                const orderCost = ord.items.reduce((s, i) => s + (i.cost || 0), 0);
-                const orderProfit = ord.total - orderCost;
-                tbody.innerHTML += `
-                    <tr class="hover:bg-gray-50 border-b">
-                        <td class="p-2.5 font-bold text-gray-700">${ord.time}</td>
-                        <td class="p-2.5 font-bold">${ord.table}-stol</td>
-                        <td class="p-2.5 text-blue-600 font-semibold">${ord.waiter || 'Nomaʼlum'}</td>
-                        <td class="p-2.5"><span class="px-2 py-0.5 rounded text-[11px] font-bold bg-gray-100">${ord.payType || 'Naqd'}</span></td>
-                        <td class="p-2.5 font-extrabold text-blue-600">${ord.total.toLocaleString()} so'm</td>
-                        <td class="p-2.5 text-right font-black text-green-600">+${orderProfit.toLocaleString()} so'm</td>
-                    </tr>
-                `;
-            });
-        }
-
-        function renderMahsulotModalDetails() {
-            const tbody = document.getElementById('mahsulotModalTableBody');
-            tbody.innerHTML = '';
-            const paidOrders = ordersData.filter(o => o.status === "To'landi");
-            let productSummary = {};
-            paidOrders.forEach(ord => {
-                ord.items.forEach(item => {
-                    const cost = item.cost || 0;
-                    if (productSummary[item.name]) {
-                        productSummary[item.name].count += 1;
-                        productSummary[item.name].totalProfit += (item.price - cost);
-                    } else {
-                        productSummary[item.name] = { cost: cost, price: item.price, count: 1, totalProfit: (item.price - cost) };
-                    }
-                });
-            });
-            const keys = Object.keys(productSummary);
-            if (keys.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-400">Sotilgan mahsulotlar yo'q.</td></tr>`;
-                return;
-            }
-            keys.forEach(name => {
-                const prod = productSummary[name];
-                tbody.innerHTML += `
-                    <tr class="hover:bg-gray-50 border-b">
-                        <td class="p-2.5 font-bold text-slate-800">${name}</td>
-                        <td class="p-2.5 font-bold text-blue-600">${prod.count} ta</td>
-                        <td class="p-2.5 text-red-500 font-bold">${prod.cost.toLocaleString()} so'm</td>
-                        <td class="p-2.5 text-gray-700 font-bold">${prod.price.toLocaleString()} so'm</td>
-                        <td class="p-2.5 text-right font-black text-green-600">+${prod.totalProfit.toLocaleString()} so'm</td>
-                    </tr>
-                `;
-            });
-        }
-
-        function openModal(id) {
-            if(id === 'tushumModal') renderTushumModalDetails();
-            if(id === 'mahsulotModal') renderMahsulotModalDetails();
-            document.getElementById(id).classList.remove('hidden');
-        }
-        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-        
-        function openPaymentModal(orderId, tableId, total) {
-            document.getElementById('payModalOrderId').innerText = orderId;
-            document.getElementById('payModalTotal').innerText = total.toLocaleString();
-            document.getElementById('payModalOrderRealId').value = orderId;
-            document.getElementById('payModalTableId').value = tableId;
-            selectPayType('Naqd');
-            document.getElementById('paymentModal').classList.remove('hidden');
-        }
-        function closePaymentModal() { document.getElementById('paymentModal').classList.add('hidden'); }
-        
-        function selectPayType(type) {
-            selectedPayTypeVal = type;
-            document.querySelectorAll('.pay-type-btn').forEach(btn => btn.className = "pay-type-btn p-3 rounded-xl border-2 font-bold text-xs border-gray-200 text-gray-600");
-            if(type === 'Naqd') document.getElementById('payTypeCash').className = "pay-type-btn p-3 rounded-xl border-2 font-bold text-xs border-green-600 bg-green-50 text-green-700";
-            if(type === 'Plastik') document.getElementById('payTypeCard').className = "pay-type-btn p-3 rounded-xl border-2 font-bold text-xs border-blue-600 bg-blue-50 text-blue-700";
-            if(type === 'O\'tkazma') document.getElementById('payTypeTransfer').className = "pay-type-btn p-3 rounded-xl border-2 font-bold text-xs border-purple-600 bg-purple-50 text-purple-700";
-        }
-
-        function switchAdminTab(tab) {
-            document.getElementById('ordersNavTab').classList.add('hidden');
-            document.getElementById('menuManageTab').classList.add('hidden');
-            document.getElementById('warehouseManageTab').classList.add('hidden');
-            document.getElementById('tabOrdersBtn').className = "py-2 px-4 font-bold text-gray-500 whitespace-nowrap";
-            document.getElementById('tabMenuBtn').className = "py-2 px-4 font-bold text-gray-500 whitespace-nowrap";
-            document.getElementById('tabWarehouseBtn').className = "py-2 px-4 font-bold text-gray-500 whitespace-nowrap";
-            if (tab === 'ordersNav') {
-                document.getElementById('ordersNavTab').classList.remove('hidden');
-                document.getElementById('tabOrdersBtn').className = "py-2 px-4 border-b-2 border-blue-600 font-bold text-blue-600 whitespace-nowrap";
-            } else if (tab === 'menuManage') {
-                document.getElementById('menuManageTab').classList.remove('hidden');
-                document.getElementById('tabMenuBtn').className = "py-2 px-4 border-b-2 border-blue-600 font-bold text-blue-600 whitespace-nowrap";
-            } else if (tab === 'warehouseManage') {
-                document.getElementById('warehouseManageTab').classList.remove('hidden');
-                document.getElementById('tabWarehouseBtn').className = "py-2 px-4 border-b-2 border-blue-600 font-bold text-blue-600 whitespace-nowrap";
-            }
-        }
-
-        function navigateRole(role, waiterName = '') {
-            currentUserRole = role;
-            if (role !== 'customer') {
-                currentWaiterName = waiterName || currentWaiterName;
-            } else {
-                currentWaiterName = '';
-            }
-
-            // F5 bosganda rol adashib qolmasligi uchun aniq saqlanadi
-            localStorage.setItem('resto_user_role', currentUserRole);
-            localStorage.setItem('resto_waiter_name', currentWaiterName);
-
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            const badge = document.getElementById('roleBadge');
-            const authBtn = document.getElementById('authBtn');
-            const waiterLabel = document.getElementById('activeWaiterName');
-
-            if (currentUserRole === 'customer') {
-                document.getElementById('customerPage').classList.add('active');
-                badge.innerText = "Mijoz";
-                badge.className = "bg-yellow-500 text-slate-900 text-xs font-bold px-2.5 py-1 rounded-full";
-                authBtn.innerHTML = `<i class="fa-solid fa-right-to-bracket mr-1"></i> Tizimga kirish`;
-                waiterLabel.classList.add('hidden');
-            } else if (currentUserRole === 'waiter') {
-                document.getElementById('waiterPage').classList.add('active');
-                badge.innerText = "Ofitsiant";
-                badge.className = "bg-blue-500 text-white text-xs font-bold px-2.5 py-1 rounded-full";
-                authBtn.innerHTML = `<i class="fa-solid fa-right-from-bracket mr-1"></i> Chiqish`;
-                waiterLabel.innerText = `👤 ${currentWaiterName}`;
-                waiterLabel.classList.remove('hidden');
-                renderWaiterOrders();
-            } else if (currentUserRole === 'admin') {
-                document.getElementById('adminPage').classList.add('active');
-                badge.innerText = "Administrator";
-                badge.className = "bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full";
-                authBtn.innerHTML = `<i class="fa-solid fa-right-from-bracket mr-1"></i> Chiqish`;
-                waiterLabel.classList.add('hidden');
-                renderAdminOrders();
-            }
-        }
-
-        function openLoginModal() { 
-            if (currentUserRole !== 'customer') { 
-                navigateRole('customer'); 
-                location.reload();
-            } else { 
-                document.getElementById('loginModal').classList.remove('hidden'); 
-            } 
-        }
-        function closeLoginModal() { document.getElementById('loginModal').classList.add('hidden'); }
-        
-        function handleLogin(e) {
-            e.preventDefault();
-            const u = document.getElementById('loginUser').value.trim();
-            const p = document.getElementById('loginPass').value;
-            if (u === 'ofitsiant1' && p === '123') { 
-                navigateRole('waiter', 'Ofitsiant 1 (Azamat)'); 
-                closeLoginModal(); 
-            } else if (u === 'ofitsiant2' && p === '123') { 
-                navigateRole('waiter', 'Ofitsiant 2 (Umid)'); 
-                closeLoginModal(); 
-            } else if (u === 'ofitsiant3' && p === '123') { 
-                navigateRole('waiter', 'Ofitsiant 3 (Javohir)'); 
-                closeLoginModal(); 
-            } else if (u === 'admin' && p === 'admin123') { 
-                navigateRole('admin'); 
-                closeLoginModal(); 
-            } else { 
-                alert("Login yoki parol xato!"); 
-            }
-        }
-
-        function renderCustomerMenu(category) {
-            const container = document.getElementById('customerMenuContainer');
-            if(!container) return;
-            container.innerHTML = '';
-            const filtered = category === 'all' ? menuData : menuData.filter(i => i.category === category);
-            filtered.forEach(item => {
-                container.innerHTML += `
-                    <div class="bg-white rounded-2xl shadow-md overflow-hidden flex flex-col justify-between hover:shadow-lg transition border border-gray-100">
-                        <img src="${item.img}" class="h-44 w-full object-cover" alt="${item.name}">
-                        <div class="p-4 flex-1 flex flex-col justify-between">
-                            <div>
-                                <span class="text-[10px] font-bold uppercase text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">${item.category}</span>
-                                <h3 class="font-bold text-base text-gray-800 mt-1">${item.name}</h3>
-                            </div>
-                            <div class="mt-3 text-green-600 font-extrabold text-lg">${item.price.toLocaleString('uz-UZ')} so'm</div>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-        function filterCategory(cat) { renderCustomerMenu(cat); }
-
-        function renderTables(updateInput = true) {
-            const container = document.getElementById('tablesContainer');
-            if(!container) return;
-            container.innerHTML = '';
-            tablesData.forEach(tbl => {
-                const isSelected = tbl.id === selectedTableId;
-                const isBusy = tbl.status === 'band';
-                container.innerHTML += `
-                    <div onclick="selectTable(${tbl.id})" class="bg-white p-3 rounded-2xl shadow border-2 ${isSelected ? 'border-blue-600 bg-blue-50' : 'border-gray-200'} cursor-pointer text-center relative transition flex flex-col items-center justify-between">
-                        <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=200&q=80" class="w-16 h-16 rounded-xl object-cover mb-2 shadow-sm">
-                        <div>
-                            <div class="font-extrabold text-sm text-slate-800">${tbl.id}-Stol</div>
-                            <div class="text-xs font-semibold text-gray-500 mt-0.5">👥 ${tbl.guests} nafar mijoz</div>
-                            <span class="text-[10px] font-bold uppercase px-2 py-0.5 mt-1 inline-block rounded-full ${isBusy ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}">${isBusy ? 'Band' : "Bo'sh"}</span>
-                        </div>
-                    </div>
-                `;
-            });
-            const tableLbl = document.getElementById('selectedTableLabel');
-            if(tableLbl) tableLbl.innerText = `${selectedTableId}-Stol`;
-            if (updateInput) {
-                const currentTbl = tablesData.find(t => t.id === selectedTableId);
-                if (currentTbl) document.getElementById('customerCountInput').value = currentTbl.guests;
-            }
-        }
-        function selectTable(id) { selectedTableId = id; renderTables(true); }
-
-        function renderWaiterMenu() {
-            const container = document.getElementById('waiterMenuContainer');
-            if(!container) return;
-            container.innerHTML = '';
-            menuData.forEach(item => {
-                container.innerHTML += `
-                    <div class="bg-white p-3 rounded-xl shadow-sm flex items-center justify-between border hover:border-blue-400 transition">
-                        <div class="flex items-center gap-3">
-                            <img src="${item.img}" class="w-12 h-12 rounded-lg object-cover">
-                            <div>
-                                <div class="font-bold text-sm text-slate-800">${item.name}</div>
-                                <div class="text-xs text-green-600 font-semibold">${item.price.toLocaleString('uz-UZ')} so'm</div>
-                            </div>
-                        </div>
-                        <button onclick="addToCart(${item.id})" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition">+ Qo'shish</button>
-                    </div>
-                `;
-            });
-        }
-
-        function addToCart(id) {
-            const item = menuData.find(i => i.id === id);
-            if(item) { cart.push(item); updateCartUI(); }
-        }
-
-        function updateCartUI() {
-            document.getElementById('cartCount').innerText = cart.length;
-            const details = document.getElementById('cartDetails');
-            const list = document.getElementById('cartItemsList');
-            if (cart.length > 0) {
-                details.classList.remove('hidden');
-                list.innerHTML = cart.map((i, index) => `
-                    <span class="bg-white border text-xs px-2.5 py-1 rounded-lg font-bold flex items-center gap-1 shadow-sm">
-                        ${i.name} (${i.price.toLocaleString()} so'm)
-                        <button onclick="removeFromCart(${index})" class="text-red-500 font-bold ml-1 hover:text-red-700">&times;</button>
-                    </span>
-                `).join('');
-                const total = cart.reduce((sum, item) => sum + item.price, 0);
-                document.getElementById('cartTotalSum').innerText = total.toLocaleString('uz-UZ');
-            } else details.classList.add('hidden');
-        }
-        function removeFromCart(index) { cart.splice(index, 1); updateCartUI(); }
-
-        function submitWaiterOrder() {
-            if (cart.length === 0) return alert("Savat bo'sh!");
-            const currentTable = tablesData.find(t => t.id === selectedTableId);
-            const orderId = '#' + Math.floor(1000 + Math.random() * 9000);
-            const totalSum = cart.reduce((s, i) => s + i.price, 0);
-            ordersData.unshift({
-                id: orderId,
-                table: currentTable.id,
-                guests: currentTable.guests,
-                waiter: currentWaiterName || "Ofitsiant",
-                items: [...cart],
-                total: totalSum,
-                status: 'Kutilmoqda', // Dastlabki holat
-                payType: null,
-                time: new Date().toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })
-            });
-            currentTable.status = 'band';
-            localStorage.setItem('resto_orders', JSON.stringify(ordersData));
-            localStorage.setItem('resto_tables', JSON.stringify(tablesData));
-            cart = [];
-            updateCartUI();
-            renderTables(true);
-            renderWaiterOrders();
-            renderAdminOrders();
-            updateStats();
-            alert(`Buyurtma ${orderId} (${currentTable.id}-stol) qabul qilindi!`);
-        }
-
-        // Ofitsiant chek bosganda admin paneliga to'lov qabul qilishga o'tadi
-        function requestBill(orderId) {
-            const ord = ordersData.find(o => o.id === orderId);
-            if (ord) {
-                ord.status = "Chek chiqarildi (To'lov kutilmoqda)";
-                localStorage.setItem('resto_orders', JSON.stringify(ordersData));
-                renderWaiterOrders();
-                renderAdminOrders();
-                alert(`Chek chiqarildi va Adminga to'lov uchun yuborildi!`);
-            }
-        }
-
-        function renderAdminOrders() {
-            const container = document.getElementById('adminOrdersContainer');
-            if(!container) return;
-            container.innerHTML = '';
-            if (ordersData.length === 0) {
-                container.innerHTML = `<p class="text-gray-400 text-sm">Hozircha buyurtmalar yo'q.</p>`;
-                return;
-            }
-            ordersData.forEach(ord => {
-                const isBillRequested = ord.status.includes("Chek chiqarildi");
-                const isPaid = ord.status === "To'landi";
-                container.innerHTML += `
-                    <div class="bg-white p-5 rounded-2xl shadow-md border-l-4 ${isPaid ? 'border-green-500' : (isBillRequested ? 'border-blue-500' : 'border-yellow-500')}">
-                        <div class="flex justify-between items-start mb-2">
-                            <span class="font-extrabold text-lg text-slate-800">${ord.id} (${ord.table}-stol, ${ord.guests}kishi)</span>
-                            <span class="text-xs font-bold px-2 py-1 rounded bg-gray-100">${ord.status}</span>
-                        </div>
-                        <div class="text-xs text-blue-600 font-bold mb-3"><i class="fa-solid fa-user-tie mr-1"></i> Ofitsiant: ${ord.waiter || 'Nomaʼlum'}</div>
-                        <div class="bg-gray-50 p-3 rounded-xl mb-3 text-xs space-y-1">
-                            ${ord.items.map(i => `<div class="flex justify-between"><span>${i.name}</span><b>${i.price.toLocaleString()} so'm</b></div>`).join('')}
-                        </div>
-                        <div class="flex justify-between items-center mb-4 font-bold">
-                            <span class="text-xs text-gray-400">${ord.time}</span>
-                            <span class="text-green-600 text-base">${ord.total.toLocaleString()} so'm</span>
-                        </div>
-                        ${isPaid ? `
-                            <div class="text-center bg-green-50 text-green-700 py-1.5 rounded-lg text-xs font-bold">To'langan (${ord.payType})</div>
-                        ` : (isBillRequested ? `
-                            <button onclick="openPaymentModal('${ord.id}', ${ord.table}, ${ord.total})" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-lg text-xs shadow">
-                                💳 To'lovni tasdiqlash va Stolni bo'shatish
-                            </button>
-                        ` : `
-                            <div class="text-center bg-yellow-50 text-yellow-700 py-1.5 rounded-lg text-xs font-bold">Ofitsiant chek chiqarishi kutilmoqda...</div>
-                        `)}
-                    </div>
-                `;
-            });
-        }
-
-        function renderWaiterOrders() {
-            const container = document.getElementById('waiterOrdersList');
-            if(!container) return;
-            container.innerHTML = '';
-            const myOrders = ordersData.filter(ord => ord.waiter === currentWaiterName || currentUserRole === 'waiter');
-            if (myOrders.length === 0) {
-                container.innerHTML = `<p class="text-xs text-gray-400">Sizda hozircha buyurtmalar yo'q.</p>`;
-                return;
-            }
-            myOrders.forEach(ord => {
-                const isPaid = ord.status === "To'landi";
-                const isBillRequested = ord.status.includes("Chek chiqarildi");
-                container.innerHTML += `
-                    <div class="bg-white p-4 rounded-xl shadow-sm border mb-3">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="font-extrabold text-blue-600">${ord.id} (${ord.table}-stol)</span>
-                            <span class="text-[10px] px-2 py-0.5 rounded font-bold bg-gray-100">${ord.status}</span>
-                        </div>
-                        <div class="text-xs text-gray-500 mb-2">Ofitsiant: <b>${ord.waiter}</b></div>
-                        <div class="font-bold text-sm text-right text-green-700 mb-3">${ord.total.toLocaleString()} so'm</div>
-                        ${isPaid ? `
-                            <div class="text-center bg-green-50 text-green-700 py-1.5 rounded text-xs font-bold">To'lov qilindi (Stol bo'shatildi)</div>
-                        ` : (isBillRequested ? `
-                            <div class="text-center bg-blue-50 text-blue-700 py-1.5 rounded text-xs font-bold">Admin tasdiqi kutilmoqda...</div>
-                        ` : `
-                            <button onclick="requestBill('${ord.id}')" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 rounded-lg text-xs transition shadow">
-                                🖨️ Chek chiqarish va Adminga yuborish
-                            </button>
-                        `)}
-                    </div>
-                `;
             });
         }
     </script>
