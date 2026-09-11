@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Restaurant Management System</title>
+    <title>Restoran Boshqaruv Tizimi - POS & Admin</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- QR Code Library CDN -->
@@ -21,82 +21,94 @@
                 left: 0;
                 top: 0;
                 width: 100%;
+                background: white;
+                padding: 20px;
             }
         }
     </style>
 </head>
 <body class="bg-slate-100 font-sans antialiased text-slate-800">
 
-    <div id="app" class="min-h-screen flex flex-col">
-        <!-- Top Navigation / Role Switcher -->
-        <header class="bg-indigo-600 text-white shadow-md p-4 flex justify-between items-center">
-            <h1 class="text-xl font-bold">🍽️ Restaurant POS & Admin System</h1>
+    <div class="min-h-screen flex flex-col">
+        <!-- Header & Navigation -->
+        <header class="bg-indigo-700 text-white shadow-lg p-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold flex items-center gap-2">🍽️ Grand Restaurant POS & Admin</h1>
             <div class="space-x-2">
-                <button onclick="switchTab('waiter')" id="btn-waiter" class="px-4 py-2 bg-indigo-700 rounded font-medium transition hover:bg-indigo-800">Ofitsant Paneli</button>
-                <button onclick="switchTab('admin')" id="btn-admin" class="px-4 py-2 bg-indigo-500 rounded font-medium transition hover:bg-indigo-600">Admin Paneli</button>
+                <button onclick="switchTab('waiter')" id="btn-waiter" class="px-4 py-2 bg-indigo-900 rounded-lg font-medium transition shadow">Ofitsant Paneli</button>
+                <button onclick="switchTab('admin')" id="btn-admin" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-800 rounded-lg font-medium transition shadow">Admin Paneli</button>
             </div>
         </header>
 
-        <!-- Main Content Area -->
+        <!-- Main Content -->
         <main class="flex-1 p-6 max-w-7xl mx-auto w-full">
             
-            <!-- WAITER PANEL -->
+            <!-- ================= WAITER PANEL ================= -->
             <section id="waiter-panel" class="space-y-6">
                 <div class="flex justify-between items-center">
-                    <h2 class="text-2xl font-semibold text-slate-700">Ofitsant Buyurtma Paneli</h2>
-                    <div class="text-sm bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full border border-indigo-200">Faol stol tanlang va buyurtma bering</div>
+                    <h2 class="text-2xl font-bold text-slate-700">Ofitsant Buyurtma Paneli</h2>
+                    <span id="live-clock" class="text-sm bg-white px-3 py-1 rounded-full shadow-sm border text-slate-500">--:--:--</span>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <!-- Tables & Menu Selection -->
+                    <!-- Tables and Menu with Images -->
                     <div class="lg:col-span-2 space-y-6">
+                        
                         <!-- Tables Grid -->
-                        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-                            <h3 class="text-lg font-medium mb-3 text-slate-700">Stollar</h3>
-                            <div id="tables-container" class="grid grid-cols-4 sm:grid-cols-6 gap-3">
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                            <h3 class="text-lg font-semibold mb-3 text-slate-700">Stollar Bo'limi</h3>
+                            <div id="tables-container" class="grid grid-cols-3 sm:grid-cols-6 gap-3">
                                 <!-- Dynamic Tables -->
                             </div>
                         </div>
 
-                        <!-- Menu Categories & Items with Plus/Minus -->
-                        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-                            <h3 class="text-lg font-medium mb-3 text-slate-700">Menyu (Taom, Salat, Ichimlik)</h3>
-                            <div class="flex space-x-2 mb-4 border-b pb-2">
-                                <button onclick="filterMenu('all')" class="px-3 py-1 text-sm bg-slate-200 rounded hover:bg-slate-300 transition">Barchasi</button>
-                                <button onclick="filterMenu('taom')" class="px-3 py-1 text-sm bg-slate-200 rounded hover:bg-slate-300 transition">Taomlar</button>
-                                <button onclick="filterMenu('salat')" class="px-3 py-1 text-sm bg-slate-200 rounded hover:bg-slate-300 transition">Salatlar</button>
-                                <button onclick="filterMenu('ichimlik')" class="px-3 py-1 text-sm bg-slate-200 rounded hover:bg-slate-300 transition">Ichimliklar</button>
+                        <!-- Menu Section with Images & Plus/Minus -->
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-semibold text-slate-700">Menyu (Taom, Salat, Ichimlik)</h3>
+                                <div class="flex space-x-1 bg-slate-100 p-1 rounded-lg">
+                                    <button onclick="filterMenu('all')" class="px-3 py-1 text-xs font-medium rounded-md bg-white shadow-sm transition filter-tab" data-cat="all">Barchasi</button>
+                                    <button onclick="filterMenu('taom')" class="px-3 py-1 text-xs font-medium rounded-md text-slate-600 hover:bg-white transition filter-tab" data-cat="taom">Taomlar</button>
+                                    <button onclick="filterMenu('salat')" class="px-3 py-1 text-xs font-medium rounded-md text-slate-600 hover:bg-white transition filter-tab" data-cat="salat">Salatlar</button>
+                                    <button onclick="filterMenu('ichimlik')" class="px-3 py-1 text-xs font-medium rounded-md text-slate-600 hover:bg-white transition filter-tab" data-cat="ichimlik">Ichimliklar</button>
+                                </div>
                             </div>
-                            <div id="menu-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <!-- Dynamic Menu Items -->
+                            <div id="menu-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[450px] overflow-y-auto pr-1">
+                                <!-- Dynamic Menu Items with Images -->
                             </div>
                         </div>
+
                     </div>
 
-                    <!-- Current Order Summary & Actions -->
-                    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between">
+                    <!-- Right Column: Current Order Summary -->
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
                         <div>
-                            <h3 class="text-lg font-medium mb-3 text-slate-700">Tanlangan Stol: <span id="selected-table-label" class="text-indigo-600 font-bold">Tanlanmagan</span></h3>
-                            <div id="order-items-list" class="divide-y max-h-80 overflow-y-auto mb-4">
-                                <p class="text-slate-400 text-sm py-4 text-center">Hozircha mahsulot qo'shilmadi</p>
+                            <div class="flex justify-between items-center mb-3">
+                                <h3 class="text-lg font-semibold text-slate-700">Stol: <span id="selected-table-label" class="text-indigo-600 font-bold">Tanlanmagan</span></h3>
+                                <span id="order-status-badge" class="text-xs px-2 py-1 rounded font-semibold bg-slate-100 text-slate-600">Yangi</span>
+                            </div>
+                            
+                            <div id="order-items-list" class="divide-y max-h-72 overflow-y-auto mb-4 pr-1">
+                                <p class="text-slate-400 text-sm py-6 text-center">Stol tanlang va mahsulot qo'shing</p>
                             </div>
                         </div>
 
                         <div class="border-t pt-4 space-y-3">
-                            <div class="flex justify-between font-bold text-lg">
+                            <div class="flex justify-between font-bold text-lg text-slate-900">
                                 <span>Jami summa:</span>
                                 <span id="order-total-price">0 so'm</span>
                             </div>
-                            <div id="order-status-badge" class="text-center py-1 px-3 rounded text-sm font-medium bg-slate-100 text-slate-600">
-                                Status: Yangi buyurtma
-                            </div>
-                            <button onclick="sendOrderToAdmin()" id="send-order-btn" class="w-full bg-indigo-600 text-white py-2.5 rounded-lg font-medium hover:bg-indigo-700 transition shadow">
-                                Adminga Yuborish / Tasdiqlash
+
+                            <!-- Actions -->
+                            <button onclick="sendOrderToAdmin()" id="send-order-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-medium transition shadow-md">
+                                Adminga Yuborish
                             </button>
-                            <button onclick="openAddMoreModal()" id="add-more-btn" class="w-full bg-emerald-600 text-white py-2.5 rounded-lg font-medium hover:bg-emerald-700 transition shadow hidden">
+                            
+                            <!-- Qo'shimcha buyurtma/mijoz qo'shish tugmasi -->
+                            <button onclick="enableAddMoreItems()" id="add-more-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-medium transition shadow-md hidden">
                                 ➕ Buyurtma / Mijoz Qo'shish
                             </button>
-                            <button onclick="printCheck()" class="w-full bg-slate-800 text-white py-2.5 rounded-lg font-medium hover:bg-slate-900 transition shadow">
+
+                            <button onclick="printCheck()" class="w-full bg-slate-800 hover:bg-slate-900 text-white py-3 rounded-xl font-medium transition shadow-md flex items-center justify-center gap-2">
                                 🖨️ Check Chiqarish (Print)
                             </button>
                         </div>
@@ -104,37 +116,39 @@
                 </div>
             </section>
 
-            <!-- ADMIN PANEL -->
+            <!-- ================= ADMIN PANEL ================= -->
             <section id="admin-panel" class="space-y-6 hidden">
-                <h2 class="text-2xl font-semibold text-slate-700">Admin va Oshxona Boshqaruvi</h2>
+                <h2 class="text-2xl font-bold text-slate-700">Admin va Oshxona Boshqaruvi</h2>
                 
-                <!-- Live Orders Dashboard -->
-                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-                    <h3 class="text-lg font-medium mb-3 text-slate-700">Kelib tushgan buyurtmalar</h3>
+                <!-- Live Orders Grid -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-semibold mb-4 text-slate-700">Kelib tushgan faol buyurtmalar</h3>
                     <div id="admin-orders-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <!-- Dynamic Admin Orders -->
-                        <p class="text-slate-400 text-sm">Hozircha faol buyurtmalar yo'q.</p>
+                        <p class="text-slate-400 text-sm py-4">Hozircha faol buyurtmalar mavjud emas.</p>
                     </div>
                 </div>
 
-                <!-- Statistics & Ratings Dashboard -->
+                <!-- Statistics & Best Sellers Rankings -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-                        <h3 class="text-lg font-medium mb-3 text-indigo-600">🏆 Eng ko'p sotilgan Taomlar</h3>
+                    <!-- Taomlar Reytingi -->
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                        <h3 class="text-base font-semibold mb-3 text-indigo-600 flex items-center gap-2">🍲 Eng ko'p sotilgan Taomlar</h3>
                         <div id="ranking-taom" class="space-y-2">
-                            <!-- Dynamic Taom Rating -->
+                            <p class="text-xs text-slate-400">Hozircha ma'lumot yo'q</p>
                         </div>
                     </div>
-                    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-                        <h3 class="text-lg font-medium mb-3 text-emerald-600">🥗 Eng ko'p sotilgan Salatlar</h3>
+                    <!-- Salatlar Reytingi -->
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                        <h3 class="text-base font-semibold mb-3 text-emerald-600 flex items-center gap-2">🥗 Eng ko'p sotilgan Salatlar</h3>
                         <div id="ranking-salat" class="space-y-2">
-                            <!-- Dynamic Salat Rating -->
+                            <p class="text-xs text-slate-400">Hozircha ma'lumot yo'q</p>
                         </div>
                     </div>
-                    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-                        <h3 class="text-lg font-medium mb-3 text-amber-600">🥤 Eng ko'p sotilgan Ichimliklar</h3>
+                    <!-- Ichimliklar Reytingi -->
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                        <h3 class="text-base font-semibold mb-3 text-amber-600 flex items-center gap-2">🥤 Eng ko'p sotilgan Ichimliklar</h3>
                         <div id="ranking-ichimlik" class="space-y-2">
-                            <!-- Dynamic Ichimlik Rating -->
+                            <p class="text-xs text-slate-400">Hozircha ma'lumot yo'q</p>
                         </div>
                     </div>
                 </div>
@@ -143,49 +157,52 @@
         </main>
     </div>
 
-    <!-- Hidden Print Area -->
-    <div id="print-area" class="hidden p-8 bg-white text-black max-w-sm mx-auto">
-        <div class="text-center space-y-1 mb-4">
-            <h2 class="text-xl font-bold">GRAND RESTAURANT</h2>
-            <p class="text-xs text-slate-600">Mazali taomlar va yuqori darajdagi xizmat</p>
-            <p class="text-xs text-slate-500" id="print-date">Sana: --/--/---- --:--</p>
-            <p class="text-sm font-semibold mt-2" id="print-table-info">Stol: -</p>
+    <!-- Hidden Print Area (Check with QR Code) -->
+    <div id="print-area" class="hidden text-black max-w-xs mx-auto font-mono text-sm">
+        <div class="text-center space-y-1 mb-3">
+            <h2 class="text-lg font-bold">GRAND RESTAURANT</h2>
+            <p class="text-xs text-slate-600">Sifatli va mazali taomlar maskani</p>
+            <p class="text-xs" id="print-date">Sana: --/--/---- --:--</p>
+            <p class="font-bold text-base mt-2" id="print-table-info">Stol: -</p>
         </div>
         <div class="border-t border-b border-dashed py-2 my-2">
-            <table class="w-full text-sm">
+            <table class="w-full text-xs">
                 <thead>
-                    <tr class="border-b text-left text-xs">
+                    <tr class="border-b text-left">
                         <th class="py-1">Mahsulot</th>
                         <th class="py-1 text-center">Miqdor</th>
-                        <th class="py-1 text-right">Narx</th>
+                        <th class="py-1 text-right">Summa</th>
                     </tr>
                 </thead>
                 <tbody id="print-items-body">
-                    <!-- Dynamic Print Items -->
+                    <!-- Dynamic Items -->
                 </tbody>
             </table>
         </div>
-        <div class="flex justify-between font-bold text-base my-2">
-            <span>Jami:</span>
+        <div class="flex justify-between font-bold text-sm my-2">
+            <span>Jami to'lov:</span>
             <span id="print-total-price">0 so'm</span>
         </div>
         <div class="mt-6 flex flex-col items-center justify-center space-y-2">
-            <canvas id="print-qrcode" class="w-28 h-28"></canvas>
-            <p class="text-xs text-slate-500 text-center">Tashrifingiz uchun rahmat!</p>
+            <canvas id="print-qrcode" class="w-24 h-24"></canvas>
+            <p class="text-[10px] text-slate-500 text-center">Xaridingiz uchun rahmat! Yana kuting!</p>
         </div>
     </div>
 
     <!-- JavaScript Application Logic -->
     <script>
-        // Mock Database & State
+        // Database with Image URLs included
         const menuItems = [
-            { id: 1, name: 'Osh (Plov)', category: 'taom', price: 35000 },
-            { id: 2, name: 'Manti', category: 'taom', price: 30000 },
-            { id: 3, name: 'Shashlik (Qiyma)', category: 'taom', price: 15000 },
-            { id: 4, name: 'Achiq-chuchuk', category: 'salat', price: 8000 },
-            { id: 5, name: 'Olivye', category: 'salat', price: 12000 },
-            { id: 6, name: 'Coca-Cola 1L', category: 'ichimlik', price: 10000 },
-            { id: 7, name: '1L Choy (Ko\'k/Qora)', category: 'ichimlik', price: 5000 }
+            { id: 1, name: 'Osh (Plov)', category: 'taom', price: 35000, img: 'https://images.unsplash.com/photo-1633964913295-ceb43826e7c9?w=150&auto=format&fit=crop&q=80' },
+            { id: 2, name: 'Manti', category: 'taom', price: 30000, img: 'https://images.unsplash.com/photo-1541696432-82c6da8ce7bf?w=150&auto=format&fit=crop&q=80' },
+            { id: 3, name: 'Shashlik (Qiyma)', category: 'taom', price: 15000, img: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=150&auto=format&fit=crop&q=80' },
+            { id: 4, name: 'Norin', category: 'taom', price: 40000, img: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=150&auto=format&fit=crop&q=80' },
+            { id: 5, name: 'Achiq-chuchuk', category: 'salat', price: 8000, img: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=150&auto=format&fit=crop&q=80' },
+            { id: 6, name: 'Olivye', category: 'salat', price: 12000, img: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=150&auto=format&fit=crop&q=80' },
+            { id: 7, name: 'Suzma', category: 'salat', price: 6000, img: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=150&auto=format&fit=crop&q=80' },
+            { id: 8, name: 'Coca-Cola 1L', category: 'ichimlik', price: 10000, img: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=150&auto=format&fit=crop&q=80' },
+            { id: 9, name: 'Choy (Ko\'k/Qora)', category: 'ichimlik', price: 5000, img: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=150&auto=format&fit=crop&q=80' },
+            { id: 10, name: 'Fanta 1L', category: 'ichimlik', price: 10000, img: 'https://images.unsplash.com/photo-1623930123984-8849733446a2?w=150&auto=format&fit=crop&q=80' }
         ];
 
         let tables = [
@@ -201,13 +218,19 @@
         let currentDraftOrder = {}; // { itemId: quantity }
         let activeOrders = {}; // tableId -> Order Object
         let salesStats = { taom: {}, salat: {}, ichimlik: {} };
+        let currentFilter = 'all';
 
-        // Initialize App
         window.onload = function() {
             renderTables();
             renderMenu('all');
             renderRankings();
+            setInterval(updateClock, 1000);
         };
+
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('live-clock').innerText = now.toLocaleTimeString();
+        }
 
         // Tab Switcher
         function switchTab(role) {
@@ -219,13 +242,13 @@
             if (role === 'waiter') {
                 waiterPanel.classList.remove('hidden');
                 adminPanel.classList.add('hidden');
-                btnWaiter.className = "px-4 py-2 bg-indigo-700 rounded font-medium transition hover:bg-indigo-800";
-                btnAdmin.className = "px-4 py-2 bg-indigo-500 rounded font-medium transition hover:bg-indigo-600";
+                btnWaiter.className = "px-4 py-2 bg-indigo-900 rounded-lg font-medium transition shadow";
+                btnAdmin.className = "px-4 py-2 bg-indigo-600 hover:bg-indigo-800 rounded-lg font-medium transition shadow";
             } else {
                 waiterPanel.classList.add('hidden');
                 adminPanel.classList.remove('hidden');
-                btnAdmin.className = "px-4 py-2 bg-indigo-700 rounded font-medium transition hover:bg-indigo-800";
-                btnWaiter.className = "px-4 py-2 bg-indigo-500 rounded font-medium transition hover:bg-indigo-600";
+                btnAdmin.className = "px-4 py-2 bg-indigo-900 rounded-lg font-medium transition shadow";
+                btnWaiter.className = "px-4 py-2 bg-indigo-600 hover:bg-indigo-800 rounded-lg font-medium transition shadow";
                 renderAdminOrders();
                 renderRankings();
             }
@@ -237,14 +260,14 @@
             container.innerHTML = '';
             tables.forEach(table => {
                 const isSelected = selectedTableId === table.id;
-                let bgClass = "bg-white border-slate-200 hover:border-indigo-400";
+                let bgClass = "bg-white border-slate-200 hover:border-indigo-400 text-slate-700";
                 if (table.status === 'band') bgClass = "bg-amber-50 border-amber-300 text-amber-800";
                 if (isSelected) bgClass = "bg-indigo-600 text-white border-indigo-600 shadow-md";
 
                 container.innerHTML += `
-                    <button onclick="selectTable(${table.id})" class="p-3 rounded-lg border text-center transition font-medium flex flex-col items-center justify-center ${bgClass}">
-                        <span>${table.name}</span>
-                        <span class="text-xs mt-1 opacity-75">${table.status === 'band' ? 'Band' : 'Bo\'sh'}</span>
+                    <button onclick="selectTable(${table.id})" class="p-3 rounded-xl border text-center transition font-medium flex flex-col items-center justify-center ${bgClass}">
+                        <span class="font-bold text-sm">${table.name}</span>
+                        <span class="text-[11px] mt-1 opacity-80">${table.status === 'band' ? 'Band' : 'Bo\'sh'}</span>
                     </button>
                 `;
             });
@@ -256,29 +279,37 @@
             const table = tables.find(t => t.id === tableId);
             document.getElementById('selected-table-label').innerText = table.name;
             
-            // Load existing order if available for this table
             if (activeOrders[tableId]) {
-                currentDraftOrder = {...activeOrders[tableId].items};
+                currentDraftOrder = { ...activeOrders[tableId].items };
                 updateOrderStatusUI(activeOrders[tableId].status);
                 document.getElementById('send-order-btn').classList.add('hidden');
                 document.getElementById('add-more-btn').classList.remove('hidden');
             } else {
                 currentDraftOrder = {};
-                updateOrderStatusUI('Yangi buyurtma');
+                updateOrderStatusUI('Yangi');
                 document.getElementById('send-order-btn').classList.remove('hidden');
                 document.getElementById('add-more-btn').classList.add('hidden');
             }
 
             renderTables();
             renderOrderSummary();
+            renderMenu(currentFilter);
         }
 
-        // Filter Menu
+        // Filter Menu Category
         function filterMenu(category) {
+            currentFilter = category;
+            document.querySelectorAll('.filter-tab').forEach(btn => {
+                if (btn.getAttribute('data-cat') === category) {
+                    btn.className = "px-3 py-1 text-xs font-medium rounded-md bg-white shadow-sm transition filter-tab";
+                } else {
+                    btn.className = "px-3 py-1 text-xs font-medium rounded-md text-slate-600 hover:bg-white transition filter-tab";
+                }
+            });
             renderMenu(category);
         }
 
-        // Render Menu with Plus/Minus Quantities
+        // Render Menu with Images & Plus/Minus Controls
         function renderMenu(category) {
             const container = document.getElementById('menu-container');
             container.innerHTML = '';
@@ -286,17 +317,20 @@
             const filtered = category === 'all' ? menuItems : menuItems.filter(i => i.category === category);
             
             filtered.forEach(item => {
-                const currentQty = currentDraftOrder[item.id] || 0;
+                const qty = currentDraftOrder[item.id] || 0;
                 container.innerHTML += `
-                    <div class="flex justify-between items-center p-3 border rounded-lg bg-slate-50">
-                        <div>
-                            <h4 class="font-medium text-slate-800">${item.name}</h4>
-                            <p class="text-xs text-indigo-600 font-semibold">${item.price.toLocaleString()} so'm</p>
+                    <div class="flex items-center justify-between p-3 border border-slate-200 rounded-xl bg-slate-50 hover:bg-slate-100 transition gap-3">
+                        <div class="flex items-center space-x-3">
+                            <img src="${item.img}" alt="${item.name}" class="w-14 h-14 object-cover rounded-lg shadow-sm">
+                            <div>
+                                <h4 class="font-semibold text-sm text-slate-800">${item.name}</h4>
+                                <p class="text-xs text-indigo-600 font-bold mt-0.5">${item.price.toLocaleString()} so'm</p>
+                            </div>
                         </div>
-                        <div class="flex items-center space-x-2">
-                            <button onclick="changeQuantity(${item.id}, -1)" class="w-8 h-8 bg-white border rounded-md flex items-center justify-center font-bold hover:bg-slate-100 transition">-</button>
-                            <span class="w-6 text-center font-medium text-sm" id="qty-${item.id}">${currentQty}</span>
-                            <button onclick="changeQuantity(${item.id}, 1)" class="w-8 h-8 bg-indigo-600 text-white rounded-md flex items-center justify-center font-bold hover:bg-indigo-700 transition">+</button>
+                        <div class="flex items-center space-x-1.5">
+                            <button onclick="changeQuantity(${item.id}, -1)" class="w-7 h-7 bg-white border border-slate-300 rounded-lg flex items-center justify-center font-bold text-rose-600 hover:bg-rose-50 transition">-</button>
+                            <span class="w-6 text-center font-bold text-sm" id="qty-${item.id}">${qty}</span>
+                            <button onclick="changeQuantity(${item.id}, 1)" class="w-7 h-7 bg-indigo-600 text-white rounded-lg flex items-center justify-center font-bold hover:bg-indigo-700 transition">+</button>
                         </div>
                     </div>
                 `;
@@ -319,7 +353,6 @@
                 currentDraftOrder[itemId] = current;
             }
 
-            // Update UI count inline
             const qtySpan = document.getElementById(`qty-${itemId}`);
             if (qtySpan) qtySpan.innerText = current;
 
@@ -333,7 +366,7 @@
 
             const itemIds = Object.keys(currentDraftOrder);
             if (itemIds.length === 0) {
-                listContainer.innerHTML = `<p class="text-slate-400 text-sm py-4 text-center">Hozircha mahsulot qo'shilmadi</p>`;
+                listContainer.innerHTML = `<p class="text-slate-400 text-sm py-6 text-center">Mahsulotlar tanlanmagan</p>`;
                 document.getElementById('order-total-price').innerText = "0 so'm";
                 return;
             }
@@ -348,10 +381,10 @@
                 listContainer.innerHTML += `
                     <div class="flex justify-between py-2 text-sm items-center">
                         <div>
-                            <p class="font-medium text-slate-700">${item.name}</p>
+                            <p class="font-medium text-slate-800">${item.name}</p>
                             <p class="text-xs text-slate-400">${qty} x ${item.price.toLocaleString()} so'm</p>
                         </div>
-                        <span class="font-semibold text-slate-800">${sum.toLocaleString()} so'm</span>
+                        <span class="font-bold text-slate-700">${sum.toLocaleString()} so'm</span>
                     </div>
                 `;
             });
@@ -376,7 +409,7 @@
             activeOrders[selectedTableId] = {
                 tableId: selectedTableId,
                 tableName: table.name,
-                items: {...currentDraftOrder},
+                items: { ...currentDraftOrder },
                 status: 'Qabul qilindi',
                 total: calculateTotal(currentDraftOrder)
             };
@@ -388,12 +421,13 @@
             alert("Buyurtma adminga muvaffaqiyatli yuborildi!");
         }
 
-        // Open Add More Modal / Mode
-        function openAddMoreModal() {
-            alert("Endi qo'shimcha taom, salat yoki ichimlik tanlab yana buyurtmaga qo'shishingiz mumkin.");
+        // Enable Add More Items
+        function enableAddMoreItems() {
+            document.getElementById('send-order-btn').classList.remove('hidden');
+            document.getElementById('send-order-btn').innerText = "Buyurtmani Yangilash / Qo'shish";
+            alert("Endi qo'shimcha taom, salat yoki ichimlik tanlab 'Buyurtmani Yangilash' tugmasi orqali adminga qo'shimcha yuborishingiz mumkin.");
         }
 
-        // Calculate Total Helper
         function calculateTotal(itemsObj) {
             let total = 0;
             for (let id in itemsObj) {
@@ -403,25 +437,24 @@
             return total;
         }
 
-        // Update Order Status UI in Waiter Panel
         function updateOrderStatusUI(status) {
             const badge = document.getElementById('order-status-badge');
-            badge.innerText = `Status: ${status}`;
-            badge.className = "text-center py-1 px-3 rounded text-sm font-medium ";
+            badge.innerText = status;
+            badge.className = "text-xs px-2.5 py-1 rounded-md font-semibold ";
             if (status === 'Qabul qilindi') badge.className += "bg-blue-100 text-blue-700";
             else if (status === 'Tayyorlanyapti') badge.className += "bg-amber-100 text-amber-700";
             else if (status === 'Tayyor') badge.className += "bg-emerald-100 text-emerald-700";
             else badge.className += "bg-slate-100 text-slate-600";
         }
 
-        // ADMIN FUNCTIONS
+        // ================= ADMIN FUNCTIONS =================
         function renderAdminOrders() {
             const container = document.getElementById('admin-orders-container');
             container.innerHTML = '';
 
             const orderKeys = Object.keys(activeOrders);
             if (orderKeys.length === 0) {
-                container.innerHTML = `<p class="text-slate-400 text-sm">Hozircha faol buyurtmalar yo'q.</p>`;
+                container.innerHTML = `<p class="text-slate-400 text-sm py-4">Hozircha faol buyurtmalar mavjud emas.</p>`;
                 return;
             }
 
@@ -430,49 +463,46 @@
                 let itemsHtml = '';
                 for (let id in order.items) {
                     const item = menuItems.find(m => m.id == id);
-                    itemsHtml += `<li class="text-xs text-slate-600">${item.name} - ${order.items[id]} dona</li>`;
+                    itemsHtml += `<li class="text-xs text-slate-600 py-0.5">${item.name} — ${order.items[id]} ta</li>`;
                 }
 
                 container.innerHTML += `
-                    <div class="border rounded-xl p-4 bg-slate-50 space-y-3 shadow-sm">
+                    <div class="border border-slate-200 rounded-2xl p-4 bg-slate-50 space-y-3 shadow-sm">
                         <div class="flex justify-between items-center">
                             <h4 class="font-bold text-slate-800">${order.tableName}</h4>
-                            <span class="text-xs px-2 py-0.5 rounded font-medium bg-indigo-100 text-indigo-700">${order.status}</span>
+                            <span class="text-xs px-2.5 py-1 rounded-md font-semibold bg-indigo-100 text-indigo-700">${order.status}</span>
                         </div>
-                        <ul class="divide-y divide-slate-200 py-1">${itemsHtml}</ul>
-                        <div class="flex justify-between items-center text-sm font-semibold pt-2 border-t">
-                            <span>Jami: ${order.total.toLocaleString()} so'm</span>
+                        <ul class="divide-y divide-slate-200 py-1 max-h-32 overflow-y-auto">${itemsHtml}</ul>
+                        <div class="flex justify-between items-center text-sm font-bold pt-2 border-t border-slate-200">
+                            <span>Jami:</span>
+                            <span class="text-indigo-600">${order.total.toLocaleString()} so'm</span>
                         </div>
-                        <div class="grid grid-cols-3 gap-1 pt-1">
-                            <button onclick="updateOrderStatus(${tableId}, 'Qabul qilindi')" class="px-2 py-1 bg-blue-500 text-white rounded text-xs font-medium hover:bg-blue-600 transition">Qabul</button>
-                            <button onclick="updateOrderStatus(${tableId}, 'Tayyorlanyapti')" class="px-2 py-1 bg-amber-500 text-white rounded text-xs font-medium hover:bg-amber-600 transition">Jarayonda</button>
-                            <button onclick="updateOrderStatus(${tableId}, 'Tayyor')" class="px-2 py-1 bg-emerald-500 text-white rounded text-xs font-medium hover:bg-emerald-600 transition">Tayyor</button>
+                        <div class="grid grid-cols-3 gap-1.5 pt-1">
+                            <button onclick="updateOrderStatus(${tableId}, 'Qabul qilindi')" class="px-2 py-1.5 bg-blue-500 text-white rounded-lg text-xs font-medium hover:bg-blue-600 transition shadow-sm">Qabul</button>
+                            <button onclick="updateOrderStatus(${tableId}, 'Tayyorlanyapti')" class="px-2 py-1.5 bg-amber-500 text-white rounded-lg text-xs font-medium hover:bg-amber-600 transition shadow-sm">Jarayonda</button>
+                            <button onclick="updateOrderStatus(${tableId}, 'Tayyor')" class="px-2 py-1.5 bg-emerald-500 text-white rounded-lg text-xs font-medium hover:bg-emerald-600 transition shadow-sm">Tayyor</button>
                         </div>
                     </div>
                 `;
             });
         }
 
-        // Admin updates status (Integration with Waiter Panel)
         function updateOrderStatus(tableId, status) {
             if (activeOrders[tableId]) {
                 activeOrders[tableId].status = status;
                 
-                // If status is 'Tayyor', record sales statistics
                 if (status === 'Tayyor') {
                     recordSales(activeOrders[tableId].items);
                 }
 
                 renderAdminOrders();
                 
-                // If currently selected table matches, update waiter view too
                 if (selectedTableId == tableId) {
                     updateOrderStatusUI(status);
                 }
             }
         }
 
-        // Record Sales for Rankings
         function recordSales(itemsObj) {
             for (let id in itemsObj) {
                 const item = menuItems.find(m => m.id == id);
@@ -486,7 +516,6 @@
             renderRankings();
         }
 
-        // Render Rankings for Admin Dashboard
         function renderRankings() {
             renderCategoryRanking('taom', 'ranking-taom');
             renderCategoryRanking('salat', 'ranking-salat');
@@ -501,21 +530,21 @@
             const sorted = Object.keys(stats).sort((a, b) => stats[b] - stats[a]);
 
             if (sorted.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-400">Ma'lumot hali yo'q</p>`;
+                container.innerHTML = `<p class="text-xs text-slate-400">Hozircha ma'lumot yo'q</p>`;
                 return;
             }
 
             sorted.forEach((name, index) => {
                 container.innerHTML += `
-                    <div class="flex justify-between items-center text-sm py-1 border-b border-slate-100 last:border-0">
-                        <span class="text-slate-700">${index + 1}. ${name}</span>
-                        <span class="font-semibold text-slate-900">${stats[name]} ta</span>
+                    <div class="flex justify-between items-center text-sm py-1.5 border-b border-slate-100 last:border-0">
+                        <span class="text-slate-700 font-medium">${index + 1}. ${name}</span>
+                        <span class="font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded">${stats[name]} ta</span>
                     </div>
                 `;
             });
         }
 
-        // Print Check with QR Code
+        // ================= PRINT CHECK & QR CODE =================
         function printCheck() {
             if (!selectedTableId || !activeOrders[selectedTableId]) {
                 alert("Bu stol uchun faol buyurtma mavjud emas!");
@@ -545,9 +574,8 @@
 
             document.getElementById('print-total-price').innerText = order.total.toLocaleString() + " so'm";
 
-            // Generate QR Code containing check information
             const qrCanvas = document.getElementById('print-qrcode');
-            QRCode.toCanvas(qrCanvas, `Restoran: Grand Restaurant | Stol: ${order.tableName} | Jami: ${order.total} so'm | Sana: ${now.toLocaleString()}`, { width: 110 }, function (error) {
+            QRCode.toCanvas(qrCanvas, `Grand Restaurant | Stol: ${order.tableName} | Jami: ${order.total} so'm | ${now.toLocaleString()}`, { width: 100 }, function (error) {
                 if (error) console.error(error);
                 window.print();
             });
