@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restoran Boshqaruv Tizimi</title>
+    <!-- Tailwind CSS (Dizayn uchun) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .page { display: none; }
+        .page.active { display: block; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans min-h-screen">
+
+    <!-- NAVIGATSIYA PANELI (Header) -->
+    <header class="bg-slate-900 text-white p-4 shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold flex items-center gap-2">
+                <i class="fa-solid font-bold fa-utensils text-yellow-500"></i> RestoControl
+            </h1>
+            <div id="userInfo" class="flex items-center gap-4">
+                <span id="roleBadge" class="bg-yellow-500 text-slate-900 text-xs font-bold px-2.5 py-1 rounded-full">Mijoz</span>
+                <button id="authBtn" onclick="openLoginModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-1.5 rounded-lg transition">
+                    <i class="fa-solid fa-right-to-bracket mr-1"></i> Tizimga kirish
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-4 md:p-6">
+
+        <!-- 1. MIJOZ PANELI -->
+        <section id="customerPage" class="page active">
+            <!-- Kategoriya Tugmalari -->
+            <div class="flex gap-2 overflow-x-auto pb-4 mb-4 border-b border-gray-200">
+                <button onclick="filterCategory('all')" class="cat-btn bg-slate-800 text-white px-5 py-2 rounded-xl font-medium shadow text-sm">Barchasi</button>
+                <button onclick="filterCategory('taom')" class="cat-btn bg-white hover:bg-gray-100 px-5 py-2 rounded-xl font-medium shadow text-sm">🍲 Taomlar</button>
+                <button onclick="filterCategory('ichimlik')" class="cat-btn bg-white hover:bg-gray-100 px-5 py-2 rounded-xl font-medium shadow text-sm">🥤 Ichimliklar</button>
+                <button onclick="filterCategory('salat')" class="cat-btn bg-white hover:bg-gray-100 px-5 py-2 rounded-xl font-medium shadow text-sm">🥗 Salatlar</button>
+            </div>
+
+            <!-- Menyular Tarmoq Ko'rinishida -->
+            <div id="menuContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <!-- JS orqali kartochkalar yuklanadi -->
+            </div>
+        </section>
+
+        <!-- 2. OFITSIANT PANELI -->
+        <section id="waiterPage" class="page">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold flex items-center gap-2"><i class="fa-solid fa-bell text-blue-600"></i> Kelib tushgan buyurtmalar</h2>
+                <span class="text-sm text-gray-500">Real-vaqt rejimida yangilanadi</span>
+            </div>
+            <div id="ordersContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- JS orqali buyurtmalar chiqariladi -->
+            </div>
+        </section>
+
+        <!-- 3. ADMIN PANELI -->
+        <section id="adminPage" class="page">
+            <div class="flex gap-4 border-b mb-6">
+                <button onclick="switchAdminTab('menuManage')" id="tabMenuBtn" class="py-2 px-4 border-b-2 border-blue-600 font-bold text-blue-600">Menyuni boshqarish</button>
+                <button onclick="switchAdminTab('stockManage')" id="tabStockBtn" class="py-2 px-4 font-bold text-gray-500">Omborxona</button>
+            </div>
+
+            <!-- Menyu Boshqaruvi -->
+            <div id="menuManageTab">
+                <div class="bg-white p-6 rounded-2xl shadow-md mb-8">
+                    <h3 class="text-lg font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-plus-circle text-green-600"></i> Yangi mahsulot qo'shish / Tahrirlash</h3>
+                    <form id="productForm" onsubmit="saveProduct(event)" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                        <input type="hidden" id="prodId">
+                        <input type="text" id="prodName" placeholder="Nomi" required class="p-2.5 border rounded-xl w-full">
+                        <select id="prodCategory" class="p-2.5 border rounded-xl w-full">
+                            <option value="taom">Taom</option>
+                            <option value="ichimlik">Ichimlik</option>
+                            <option value="salat">Salat</option>
+                        </select>
+                        <input type="number" id="prodPrice" placeholder="Narxi (so'm)" required class="p-2.5 border rounded-xl w-full">
+                        <input type="text" id="prodImg" placeholder="Rasm URL havolasi" required class="p-2.5 border rounded-xl w-full">
+                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 px-4 rounded-xl shadow transition">Saqlash</button>
+                    </form>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-md overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-100 text-gray-700">
+                            <tr>
+                                <th class="p-4">Rasm</th>
+                                <th class="p-4">Nomi</th>
+                                <th class="p-4">Kategoriya</th>
+                                <th class="p-4">Narxi</th>
+                                <th class="p-4 text-right">Amallar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminMenuTable">
+                            <!-- JS orqali to'ldiriladi -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Omborxona Boshqaruvi -->
+            <div id="stockManageTab" class="hidden">
+                <div class="bg-white p-6 rounded-2xl shadow-md mb-8">
+                    <h3 class="text-lg font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-boxes-stacked text-purple-600"></i> Omborxona xom-ashyolarini boshqarish</h3>
+                    <form onsubmit="saveStock(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <input type="text" id="stockName" placeholder="Masalliq nomi (masalan: Go'sht)" required class="p-2.5 border rounded-xl">
+                        <input type="text" id="stockQty" placeholder="Mog'dori (masalan: 25 kg)" required class="p-2.5 border rounded-xl">
+                        <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 px-4 rounded-xl shadow transition">Omborga qo'shish</button>
+                    </form>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-md overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-100 text-gray-700">
+                            <tr>
+                                <th class="p-4">Masalliq</th>
+                                <th class="p-4">Mavjud miqdor</th>
+                                <th class="p-4 text-right">O'chirish</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminStockTable">
+                            <!-- JS orqali to'ldiriladi -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- LOGIN MODAL OYNASI -->
+    <div id="loginModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex justify-center items-center z-50">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md relative">
+            <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
+            <h2 class="text-2xl font-bold mb-6 text-center text-slate-800">Tizimga kirish</h2>
+            <form onsubmit="handleLogin(event)">
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold mb-2">Login</label>
+                    <input type="text" id="loginUser" required class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold mb-2">Parol</label>
+                    <input type="password" id="loginPass" required class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-3 rounded-xl shadow-lg transition">Kirish</button>
+            </form>
+            <div class="mt-6 text-xs text-gray-500 bg-gray-50 p-3 rounded-xl border">
+                <p><strong>Demo Loginlar:</strong></p>
+                <p>👨‍🍳 Ofitsiant: <code>waiter</code> / <code>123</code></p>
+                <p>🛠 Admin: <code>admin</code> / <code>admin123</code></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT (Logika va Saqlash) -->
+    <script>
+        // DASTLABKI MA'LUMOTLAR
+        const initialMenu = [
+            { id: 1, name: "Osh (Palov)", category: "taom", price: 35000, img: "https://images.unsplash.com/photo-1633964913295-ceb43826e7c9?auto=format&fit=crop&w=400&q=80" },
+            { id: 2, name: "Shashlik", category: "taom", price: 18000, img: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=400&q=80" },
+            { id: 3, name: "Coca-Cola 1.5L", category: "ichimlik", price: 14000, img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=400&q=80" },
+            { id: 4, name: "Achichuk salati", category: "salat", price: 12000, img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=400&q=80" }
+        ];
+
+        const initialStock = [
+            { id: 1, name: "Guruch", qty: "50 kg" },
+            { id: 2, name: "Mol go'shti", qty: "30 kg" },
+            { id: 3, name: "Piyoz", qty: "20 kg" }
+        ];
+
+        // LOCALSTORAGE BILAN ISHLASH
+        let menuData = JSON.parse(localStorage.getItem('resto_menu')) || initialMenu;
+        let stockData = JSON.parse(localStorage.getItem('resto_stock')) || initialStock;
+        let ordersData = JSON.parse(localStorage.getItem('resto_orders')) || [];
+        let currentUserRole = 'customer'; // 'customer', 'waiter', 'admin'
+
+        // ILAVONIZNI ISHGA TUSHIRISH
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCustomerMenu('all');
+            renderAdminMenu();
+            renderAdminStock();
+            renderWaiterOrders();
+        });
+
+        // SHABLON / PAGE O'TKAZISH
+        function navigateRole(role) {
+            currentUserRole = role;
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+
+            const badge = document.getElementById('roleBadge');
+            const authBtn = document.getElementById('authBtn');
+
+            if (role === 'customer') {
+                document.getElementById('customerPage').classList.add('active');
+                badge.innerText = "Mijoz";
+                badge.className = "bg-yellow-500 text-slate-900 text-xs font-bold px-2.5 py-1 rounded-full";
+                authBtn.innerHTML = `<i class="fa-solid fa-right-to-bracket mr-1"></i> Tizimga kirish`;
+            } else if (role === 'waiter') {
+                document.getElementById('waiterPage').classList.add('active');
+                badge.innerText = "Ofitsiant";
+                badge.className = "bg-blue-500 text-white text-xs font-bold px-2.5 py-1 rounded-full";
+                authBtn.innerHTML = `<i class="fa-solid fa-right-from-bracket mr-1"></i> Chiqish`;
+            } else if (role === 'admin') {
+                document.getElementById('adminPage').classList.add('active');
+                badge.innerText = "Administrator";
+                badge.className = "bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full";
+                authBtn.innerHTML = `<i class="fa-solid fa-right-from-bracket mr-1"></i> Chiqish`;
+            }
+        }
+
+        // LOGIN MODAL VA AUTHENTICATION
+        function openLoginModal() {
+            if (currentUserRole !== 'customer') {
+                navigateRole('customer');
+            } else {
+                document.getElementById('loginModal').classList.remove('hidden');
+            }
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.add('hidden');
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('loginUser').value;
+            const p = document.getElementById('loginPass').value;
+
+            if (u === 'waiter' && p === '123') {
+                navigateRole('waiter');
+                closeLoginModal();
+            } else if (u === 'admin' && p === 'admin123') {
+                navigateRole('admin');
+                closeLoginModal();
+            } else {
+                alert("Login yoki parol xato!");
+            }
+        }
+
+        // 1. MIJOZ PANELI LOGIKASI
+        function renderCustomerMenu(category) {
+            const container = document.getElementById('menuContainer');
+            container.innerHTML = '';
+
+            const filtered = category === 'all' ? menuData : menuData.filter(i => i.category === category);
+
+            filtered.forEach(item => {
+                container.innerHTML += `
+                    <div class="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition flex flex-col justify-between">
+                        <img src="${item.img}" class="h-48 w-full object-cover" alt="${item.name}">
+                        <div class="p-4 flex-1 flex flex-col justify-between">
+                            <div>
+                                <span class="text-xs font-bold uppercase tracking-wider text-gray-400">${item.category}</span>
+                                <h3 class="font-bold text-lg text-gray-800">${item.name}</h3>
+                            </div>
+                            <div class="mt-4 flex justify-between items-center">
+                                <span class="text-green-600 font-extrabold text-lg">${item.price.toLocaleString('uz-UZ')} so'm</span>
+                                <button onclick="orderItem('${item.name}', ${item.price})" class="bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold px-3 py-2 rounded-xl flex items-center gap-1 transition">
+                                    <i class="fa-solid fa-cart-plus"></i> Buyurtma
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function filterCategory(cat) {
+            renderCustomerMenu(cat);
+        }
+
+        function orderItem(name, price) {
+            const tableNum = prompt("Stol raqamini kiriting (Masalan: 4-stol):", "1-stol");
+            if (!tableNum) return;
+
+            const newOrder = {
+                id: Date.now(),
+                table: tableNum,
+                item: name,
+                price: price,
+                time: new Date().toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' }),
+                status: 'Yangi'
+            };
+
+            ordersData.unshift(newOrder);
+            localStorage.setItem('resto_orders', JSON.stringify(ordersData));
+            renderWaiterOrders();
+            alert(`${name} buyurtma qilindi! (Ofitsiant paneliga yuborildi)`);
+        }
+
+        // 2. OFITSIANT PANELI LOGIKASI
+        function renderWaiterOrders() {
+            const container = document.getElementById('ordersContainer');
+            container.innerHTML = '';
+
+            if (ordersData.length === 0) {
+                container.innerHTML = `<p class="text-gray-400 col-span-full text-center py-10">Hozircha buyurtmalar yo'q.</p>`;
+                return;
+            }
+
+            ordersData.forEach(ord => {
+                const statusColor = ord.status === 'Yangi' ? 'bg-yellow-100 text-yellow-800 border-yellow-300' : 'bg-green-100 text-green-800 border-green-300';
+                
+                container.innerHTML += `
+                    <div class="bg-white p-5 rounded-2xl shadow-md border-l-4 ${ord.status === 'Yangi' ? 'border-yellow-500' : 'border-green-500'}">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="font-extrabold text-slate-800 text-lg">${ord.table}</span>
+                            <span class="text-xs px-2.5 py-1 rounded-full border ${statusColor} font-bold">${ord.status}</span>
+                        </div>
+                        <p class="font-semibold text-gray-700 mb-1">${ord.item}</p>
+                        <p class="text-xs text-gray-400 mb-4">Vaqti: ${ord.time} | ${ord.price.toLocaleString('uz-UZ')} so'm</p>
+                        
+                        ${ord.status === 'Yangi' ? `
+                            <button onclick="updateOrderStatus(${ord.id}, 'Bajarildi')" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-xl text-sm transition">
+                                Yakunlash
+                            </button>
+                        ` : `
+                            <button onclick="deleteOrder(${ord.id})" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 rounded-xl text-sm transition">
+                                Arxivlash
+                            </button>
+                        `}
+                    </div>
+                `;
+            });
+        }
+
+        function updateOrderStatus(id, newStatus) {
+            ordersData = ordersData.map(o => o.id === id ? { ...o, status: newStatus } : o);
+            localStorage.setItem('resto_orders', JSON.stringify(ordersData));
+            renderWaiterOrders();
+        }
+
+        function deleteOrder(id) {
+            ordersData = ordersData.filter(o => o.id !== id);
+            localStorage.setItem('resto_orders', JSON.stringify(ordersData));
+            renderWaiterOrders();
+        }
+
+        // 3. ADMIN PANELI LOGIKASI
+        function switchAdminTab(tab) {
+            if (tab === 'menuManage') {
+                document.getElementById('menuManageTab').classList.remove('hidden');
+                document.getElementById('stockManageTab').classList.add('hidden');
+                document.getElementById('tabMenuBtn').className = "py-2 px-4 border-b-2 border-blue-600 font-bold text-blue-600";
+                document.getElementById('tabStockBtn').className = "py-2 px-4 font-bold text-gray-500";
+            } else {
+                document.getElementById('menuManageTab').classList.add('hidden');
+                document.getElementById('stockManageTab').classList.remove('hidden');
+                document.getElementById('tabStockBtn').className = "py-2 px-4 border-b-2 border-blue-600 font-bold text-blue-600";
+                document.getElementById('tabMenuBtn').className = "py-2 px-4 font-bold text-gray-500";
+            }
+        }
+
+        function renderAdminMenu() {
+            const table = document.getElementById('adminMenuTable');
+            table.innerHTML = '';
+
+            menuData.forEach(item => {
+                table.innerHTML += `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="p-4"><img src="${item.img}" class="w-12 h-12 rounded-lg object-cover"></td>
+                        <td class="p-4 font-bold">${item.name}</td>
+                        <td class="p-4 capitalize text-gray-500">${item.category}</td>
+                        <td class="p-4 font-semibold text-green-600">${item.price.toLocaleString('uz-UZ')} so'm</td>
+                        <td class="p-4 text-right">
+                            <button onclick="editProduct(${item.id})" class="text-blue-600 hover:text-blue-800 mr-3"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="deleteProduct(${item.id})" class="text-red-600 hover:text-red-800"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function saveProduct(e) {
+            e.preventDefault();
+            const id = document.getElementById('prodId').value;
+            const name = document.getElementById('prodName').value;
+            const category = document.getElementById('prodCategory').value;
+            const price = parseFloat(document.getElementById('prodPrice').value);
+            const img = document.getElementById('prodImg').value;
+
+            if (id) {
+                menuData = menuData.map(p => p.id == id ? { id: Number(id), name, category, price, img } : p);
+            } else {
+                menuData.push({ id: Date.now(), name, category, price, img });
+            }
+
+            localStorage.setItem('resto_menu', JSON.stringify(menuData));
+            document.getElementById('productForm').reset();
+            document.getElementById('prodId').value = '';
+            renderAdminMenu();
+            renderCustomerMenu('all');
+        }
+
+        function editProduct(id) {
+            const item = menuData.find(p => p.id === id);
+            if (!item) return;
+            document.getElementById('prodId').value = item.id;
+            document.getElementById('prodName').value = item.name;
+            document.getElementById('prodCategory').value = item.category;
+            document.getElementById('prodPrice').value = item.price;
+            document.getElementById('prodImg').value = item.img;
+        }
+
+        function deleteProduct(id) {
+            if (confirm("Ushbu mahsulotni o'chirishni xohlaysizmi?")) {
+                menuData = menuData.filter(p => p.id !== id);
+                localStorage.setItem('resto_menu', JSON.stringify(menuData));
+                renderAdminMenu();
+                renderCustomerMenu('all');
+            }
+        }
+
+        // OMBORXONA LOGIKASI
+        function renderAdminStock() {
+            const table = document.getElementById('adminStockTable');
+            table.innerHTML = '';
+
+            stockData.forEach(item => {
+                table.innerHTML += `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="p-4 font-bold">${item.name}</td>
+                        <td class="p-4 font-semibold text-purple-600">${item.qty}</td>
+                        <td class="p-4 text-right">
+                            <button onclick="deleteStock(${item.id})" class="text-red-600 hover:text-red-800"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function saveStock(e) {
+            e.preventDefault();
+            const name = document.getElementById('stockName').value;
+            const qty = document.getElementById('stockQty').value;
+
+            stockData.push({ id: Date.now(), name, qty });
+            localStorage.setItem('resto_stock', JSON.stringify(stockData));
+            e.target.reset();
+            renderAdminStock();
+        }
+
+        function deleteStock(id) {
+            stockData = stockData.filter(s => s.id !== id);
+            localStorage.setItem('resto_stock', JSON.stringify(stockData));
+            renderAdminStock();
+        }
+    </script>
+</body>
+</html>
