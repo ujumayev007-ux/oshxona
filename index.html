@@ -11,8 +11,8 @@
         .page.active { display: block; }
         @media print {
             body * { visibility: hidden; }
-            #receiptPrintArea, #receiptPrintArea * { visibility: visible; }
-            #receiptPrintArea { position: absolute; left: 0; top: 0; width: 100%; }
+            #warehousePrintArea, #warehousePrintArea * { visibility: visible; }
+            #warehousePrintArea { position: absolute; left: 0; top: 0; width: 100%; }
         }
     </style>
 </head>
@@ -127,7 +127,7 @@
             <div class="flex gap-4 border-b mb-6 overflow-x-auto">
                 <button onclick="switchAdminTab('ordersNav')" id="tabOrdersBtn" class="py-2 px-4 border-b-2 border-blue-600 font-bold text-blue-600 whitespace-nowrap">Buyurtmalar va Kassa</button>
                 <button onclick="switchAdminTab('menuManage')" id="tabMenuBtn" class="py-2 px-4 font-bold text-gray-500 whitespace-nowrap">Menyu va Tannarx</button>
-                <button onclick="switchAdminTab('warehouseManage')" id="tabWarehouseBtn" class="py-2 px-4 font-bold text-gray-500 whitespace-nowrap">📦 Omborxona (Mahsulotlar)</button>
+                <button onclick="switchAdminTab('warehouseManage')" id="tabWarehouseBtn" class="py-2 px-4 font-bold text-gray-500 whitespace-nowrap">📦 Omborxona va Statistika</button>
             </div>
 
             <!-- 1. BUYURTMALAR TABI -->
@@ -179,34 +179,67 @@
             <!-- 3. OMBORXONA TABI -->
             <div id="warehouseManageTab" class="hidden">
                 <div class="bg-white p-6 rounded-2xl shadow-md mb-8 border border-gray-100">
-                    <h3 class="text-lg font-bold mb-4">Omborga xomashyo qo'shish / Yangilash</h3>
-                    <form onsubmit="saveIngredient(event)" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <input type="text" id="ingName" placeholder="Xomashyo nomi (masalan: Sabzi, Yog')" required class="p-2.5 border rounded-xl text-sm">
-                        <input type="number" step="0.1" id="ingAmount" placeholder="Miqdori (gramm yoki ml)" required class="p-2.5 border rounded-xl text-sm">
+                    <h3 id="warehouseFormTitle" class="text-lg font-bold mb-4">Omborga xomashyo yoki suv qo'shish</h3>
+                    <form onsubmit="saveIngredient(event)" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+                        <input type="hidden" id="editIngId">
+                        <input type="text" id="ingName" placeholder="Nomi (masalan: Cola 1L, Sabzi)" required class="p-2.5 border rounded-xl text-sm">
+                        <input type="number" step="0.1" id="ingAmount" placeholder="Miqdori (litr, dona, gramm)" required class="p-2.5 border rounded-xl text-sm">
                         <select id="ingUnit" class="p-2.5 border rounded-xl text-sm">
                             <option value="gram">gram</option>
                             <option value="kg">kg</option>
                             <option value="litr">litr</option>
                             <option value="dona">dona</option>
                         </select>
-                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-xl text-sm">
-                            + Omborda Saqlash
-                        </button>
+                        <input type="number" id="ingCost" placeholder="Harid narxi (1 birlik)" required class="p-2.5 border rounded-xl text-sm">
+                        <input type="text" id="ingImg" placeholder="Rasm URL havolasi" required class="p-2.5 border rounded-xl text-sm">
+                        <div class="flex gap-2">
+                            <button type="submit" id="saveIngBtn" class="bg-blue-600 text-white font-bold py-2.5 px-4 rounded-xl flex-1 text-sm">Saqlash</button>
+                            <button type="button" onclick="resetWarehouseForm()" id="cancelIngEditBtn" class="bg-gray-400 text-white font-bold py-2.5 px-3 rounded-xl hidden">X</button>
+                        </div>
                     </form>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-md overflow-hidden border border-gray-100">
+                <!-- EXPORT TUGMALARI VA STATISTIKA -->
+                <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+                    <h4 class="font-bold text-lg text-slate-800">Omborxona qoldiqlari va sarflanish tarixi</h4>
+                    <div class="flex gap-2">
+                        <button onclick="exportWarehouseData('excel')" class="bg-green-600 hover:bg-green-700 text-white text-xs font-bold px-4 py-2 rounded-xl shadow"><i class="fa-solid fa-file-excel mr-1"></i> Excel</button>
+                        <button onclick="exportWarehouseData('word')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-xl shadow"><i class="fa-solid fa-file-word mr-1"></i> Word</button>
+                        <button onclick="exportWarehouseData('pdf')" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2 rounded-xl shadow"><i class="fa-solid fa-file-pdf mr-1"></i> PDF / Chop etish</button>
+                    </div>
+                </div>
+
+                <div id="warehousePrintArea" class="bg-white rounded-2xl shadow-md overflow-hidden border border-gray-100 mb-8">
                     <table class="w-full text-left border-collapse text-xs md:text-sm">
                         <thead class="bg-slate-100">
                             <tr>
-                                <th class="p-4">Xomashyo Nomi</th>
-                                <th class="p-4">Mavjud Qoldiq Miqdori</th>
+                                <th class="p-4">Rasm</th>
+                                <th class="p-4">Nomi</th>
+                                <th class="p-4">Mavjud Qoldiq</th>
                                 <th class="p-4">O'lchov Birligi</th>
+                                <th class="p-4">Harid Narxi</th>
                                 <th class="p-4 text-right">Amallar</th>
                             </tr>
                         </thead>
                         <tbody id="warehouseTable" class="divide-y"></tbody>
                     </table>
+                </div>
+
+                <!-- SARFLANISH VA SOTUV TARIXI STATISTIKASI -->
+                <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
+                    <h4 class="font-bold text-lg mb-4 text-slate-800">Tovar va Ovqatlar Sarflanishi (Kirim-Chiqim tarixi)</h4>
+                    <div class="max-h-60 overflow-y-auto">
+                        <table class="w-full text-left border-collapse text-xs md:text-sm">
+                            <thead class="bg-slate-100 sticky top-0">
+                                <tr>
+                                    <th class="p-2.5">Vaqt</th>
+                                    <th class="p-2.5">Sotilgan Taom / Mahsulot</th>
+                                    <th class="p-2.5">Sarflangan Xomashyo / Miqdor</th>
+                                </tr>
+                            </thead>
+                            <tbody id="consumptionLogTable" class="divide-y"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </section>
@@ -306,9 +339,7 @@
     </div>
 
     <script>
-        // Taomlar menyusi (Barcha taom, salat va ichimliklar to'liq ro'yxati)
         const defaultMenu = [
-            // Taomlar
             { id: 1, name: "Osh", category: "taom", cost: 30000, price: 40000, img: "https://images.unsplash.com/photo-1633964913295-ceb43826e7c9?auto=format&fit=crop&w=500&q=80" },
             { id: 2, name: "Chuchvara", category: "taom", cost: 22000, price: 30000, img: "https://images.unsplash.com/photo-1541696432-82c6da8ce7bf?auto=format&fit=crop&w=500&q=80" },
             { id: 3, name: "Mastava", category: "taom", cost: 21000, price: 30000, img: "https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=500&q=80" },
@@ -316,58 +347,51 @@
             { id: 5, name: "Bifstrogonov", category: "taom", cost: 36000, price: 50000, img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=500&q=80" },
             { id: 6, name: "Norin", category: "taom", cost: 35000, price: 48000, img: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=500&q=80" },
             { id: 7, name: "Manti", category: "taom", cost: 25000, price: 35000, img: "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?auto=format&fit=crop&w=500&q=80" },
-            // Salatlar
             { id: 8, name: "Shakarob", category: "salat", cost: 8000, price: 12000, img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=500&q=80" },
             { id: 9, name: "Olivie", category: "salat", cost: 10000, price: 15000, img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=500&q=80" },
             { id: 10, name: "Mujkoy Kapriz", category: "salat", cost: 14000, price: 20000, img: "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?auto=format&fit=crop&w=500&q=80" },
             { id: 11, name: "Gretskiy salat", category: "salat", cost: 12000, price: 18000, img: "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=500&q=80" },
-            // Ichimliklar
             { id: 12, name: "Coca-Cola 1L", category: "ichimlik", cost: 8000, price: 12000, img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=500&q=80" },
             { id: 13, name: "Qora choy", category: "ichimlik", cost: 3000, price: 5000, img: "https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=500&q=80" },
             { id: 14, name: "Ko'k choy", category: "ichimlik", cost: 3000, price: 5000, img: "https://images.unsplash.com/photo-1597481499750-3e6b22637e12?auto=format&fit=crop&w=500&q=80" }
         ];
 
-        // Ombordagi xomashyolar bazasi
         const defaultWarehouse = [
-            { id: 1, name: "Guruch", amount: 50000, unit: "gram" },
-            { id: 2, name: "Go'sht", amount: 30000, unit: "gram" },
-            { id: 3, name: "Sabzi", amount: 40000, unit: "gram" },
-            { id: 4, name: "Yog'", amount: 15000, unit: "gram" },
-            { id: 5, name: "Piyoz", amount: 20000, unit: "gram" },
-            { id: 6, name: "Tuz va Ziravorlar", amount: 5000, unit: "gram" },
-            { id: 7, name: "Un", amount: 30000, unit: "gram" },
-            { id: 8, name: "Kartoshka", amount: 25000, unit: "gram" },
-            { id: 9, name: "Mayonez", amount: 15000, unit: "gram" },
-            { id: 10, name: "Pomidor", amount: 20000, unit: "gram" },
-            { id: 11, name: "Bodring", amount: 15000, unit: "gram" },
-            { id: 12, name: "Kolbasa", amount: 10000, unit: "gram" },
-            { id: 13, name: "Dumba yog'i", amount: 10000, unit: "gram" }
+            { id: 1, name: "Guruch", amount: 50000, unit: "gram", cost: 5000, img: "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=200&q=80" },
+            { id: 2, name: "Go'sht", amount: 30000, unit: "gram", cost: 70000, img: "https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?auto=format&fit=crop&w=200&q=80" },
+            { id: 3, name: "Sabzi", amount: 40000, unit: "gram", cost: 4000, img: "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?auto=format&fit=crop&w=200&q=80" },
+            { id: 4, name: "Yog'", amount: 15000, unit: "gram", cost: 18000, img: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=200&q=80" },
+            { id: 5, name: "Piyoz", amount: 20000, unit: "gram", cost: 3000, img: "https://images.unsplash.com/photo-1508747703725-719777637510?auto=format&fit=crop&w=200&q=80" },
+            { id: 6, name: "Coca-Cola 1L", amount: 50, unit: "dona", cost: 8000, img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=200&q=80" },
+            { id: 7, name: "Suv 0.5L", amount: 30, unit: "dona", cost: 2000, img: "https://images.unsplash.com/photo-1548839140-29a749e1cf4d?auto=format&fit=crop&w=200&q=80" }
         ];
 
-        // Taom va salat retseptlari (Texnologik kartalar)
         const dishRecipes = {
-            "Osh": { "Guruch": 250, "Go'sht": 200, "Sabzi": 300, "Yog'": 50, "Piyoz": 50, "Tuz va Ziravorlar": 10 },
-            "Chuchvara": { "Un": 120, "Go'sht": 150, "Piyoz": 80, "Tuz va Ziravorlar": 5, "Yog'": 20 },
-            "Mastava": { "Guruch": 80, "Go'sht": 120, "Kartoshka": 100, "Sabzi": 50, "Piyoz": 50, "Yog'": 30, "Tuz va Ziravorlar": 10 },
-            "Bifsteks": { "Go'sht": 220, "Kartoshka": 150, "Yog'": 40, "Piyoz": 30, "Tuz va Ziravorlar": 10 },
-            "Bifstrogonov": { "Go'sht": 200, "Piyoz": 60, "Yog'": 40, "Mayonez": 30, "Tuz va Ziravorlar": 10 },
-            "Norin": { "Go'sht": 180, "Un": 100, "Piyoz": 40, "Tuz va Ziravorlar": 10 },
-            "Manti": { "Un": 120, "Go'sht": 150, "Piyoz": 100, "Dumba yog'i": 30, "Tuz va Ziravorlar": 5 },
-            "Shakarob": { "Pomidor": 150, "Piyoz": 50, "Tuz va Ziravorlar": 5 },
-            "Olivie": { "Kartoshka": 100, "Kolbasa": 80, "Mayonez": 50, "Bodring": 60, "Tuz va Ziravorlar": 5 },
-            "Mujkoy Kapriz": { "Go'sht": 100, "Bodring": 80, "Pomidor": 80, "Mayonez": 40, "Tuz va Ziravorlar": 5 },
-            "Gretskiy salat": { "Pomidor": 100, "Bodring": 100, "Tuz va Ziravorlar": 5 }
+            "Osh": { "Guruch": 250, "Go'sht": 200, "Sabzi": 300, "Yog'": 50, "Piyoz": 50 },
+            "Chuchvara": { "Go'sht": 150, "Piyoz": 80 },
+            "Mastava": { "Guruch": 80, "Go'sht": 120, "Sabzi": 50, "Piyoz": 50, "Yog'": 30 },
+            "Bifsteks": { "Go'sht": 220, "Yog'": 40 },
+            "Bifstrogonov": { "Go'sht": 200, "Piyoz": 60, "Yog'": 40 },
+            "Norin": { "Go'sht": 180, "Piyoz": 40 },
+            "Manti": { "Go'sht": 150, "Piyoz": 100 },
+            "Shakarob": { "Piyoz": 50 },
+            "Olivie": { "Kolbasa": 80 },
+            "Mujkoy Kapriz": { "Go'sht": 100 },
+            "Gretskiy salat": { "Piyoz": 20 },
+            "Coca-Cola 1L": { "Coca-Cola 1L": 1 }, // Dona yoki Litr bo'yicha hisob
         };
 
-        const MENU_VERSION = "v15.0_azamat_umid_restaurant";
+        const MENU_VERSION = "v16.0_azamat_umid_restaurant";
         if (localStorage.getItem('resto_version_check') !== MENU_VERSION) {
             localStorage.setItem('resto_menu', JSON.stringify(defaultMenu));
             localStorage.setItem('resto_warehouse', JSON.stringify(defaultWarehouse));
+            localStorage.setItem('resto_consumption_log', JSON.stringify([]));
             localStorage.setItem('resto_version_check', MENU_VERSION);
         }
 
         let menuData = JSON.parse(localStorage.getItem('resto_menu')) || defaultMenu;
         let warehouseData = JSON.parse(localStorage.getItem('resto_warehouse')) || defaultWarehouse;
+        let consumptionLog = JSON.parse(localStorage.getItem('resto_consumption_log')) || [];
         let tablesData = JSON.parse(localStorage.getItem('resto_tables')) || Array.from({ length: 12 }, (_, i) => ({ id: i + 1, guests: (i % 4) + 2, status: 'bo\'sh' }));
         let ordersData = JSON.parse(localStorage.getItem('resto_orders')) || [];
 
@@ -384,11 +408,12 @@
             renderAdminOrders();
             renderAdminMenu();
             renderWarehouse();
+            renderConsumptionLog();
             renderWaiterOrders();
             updateStats();
         });
 
-        // 1. OMBORXONANI BOSHQARISH
+        // OMBORXONA BOSHQARUVI VA RASM/NARX TAHRIRLASH
         function renderWarehouse() {
             const tbody = document.getElementById('warehouseTable');
             if (!tbody) return;
@@ -397,12 +422,17 @@
             warehouseData.forEach(item => {
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 border-b">
+                        <td class="p-3"><img src="${item.img}" class="w-12 h-12 rounded-lg object-cover"></td>
                         <td class="p-3 font-bold text-slate-800">${item.name}</td>
-                        <td class="p-3 font-extrabold ${item.amount < 1000 ? 'text-red-600' : 'text-blue-600'}">${item.amount.toLocaleString()}</td>
+                        <td class="p-3 font-extrabold ${item.amount < 10 ? 'text-red-600' : 'text-blue-600'}">${item.amount.toLocaleString()}</td>
                         <td class="p-3 font-semibold text-gray-500">${item.unit}</td>
-                        <td class="p-3 text-right">
-                            <button onclick="deleteIngredient(${item.id})" class="bg-red-100 text-red-600 px-3 py-1.5 rounded-lg font-bold text-xs hover:bg-red-200">
-                                <i class="fa-solid fa-trash"></i> O'chirish
+                        <td class="p-3 font-extrabold text-green-600">${(item.cost || 0).toLocaleString()} so'm</td>
+                        <td class="p-3 text-right space-x-2">
+                            <button onclick="editWarehouseItem(${item.id})" class="bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg font-bold text-xs hover:bg-blue-200">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button onclick="deleteWarehouseItem(${item.id})" class="bg-red-100 text-red-600 px-3 py-1.5 rounded-lg font-bold text-xs hover:bg-red-200">
+                                <i class="fa-solid fa-trash"></i>
                             </button>
                         </td>
                     </tr>
@@ -412,33 +442,114 @@
 
         function saveIngredient(e) {
             e.preventDefault();
+            const editId = document.getElementById('editIngId').value;
             const name = document.getElementById('ingName').value.trim();
             const amount = parseFloat(document.getElementById('ingAmount').value);
             const unit = document.getElementById('ingUnit').value;
+            const cost = parseFloat(document.getElementById('ingCost').value) || 0;
+            const img = document.getElementById('ingImg').value;
 
-            const existing = warehouseData.find(i => i.name.toLowerCase() === name.toLowerCase());
-            if (existing) {
-                existing.amount += amount;
+            if (editId) {
+                warehouseData = warehouseData.map(i => i.id == editId ? { id: Number(editId), name, amount, unit, cost, img } : i);
             } else {
-                warehouseData.push({ id: Date.now(), name, amount, unit });
+                const existing = warehouseData.find(i => i.name.toLowerCase() === name.toLowerCase());
+                if (existing) {
+                    existing.amount += amount;
+                    existing.cost = cost;
+                    existing.img = img;
+                } else {
+                    warehouseData.push({ id: Date.now(), name, amount, unit, cost, img });
+                }
             }
 
             localStorage.setItem('resto_warehouse', JSON.stringify(warehouseData));
-            document.getElementById('ingName').value = '';
-            document.getElementById('ingAmount').value = '';
+            resetWarehouseForm();
             renderWarehouse();
-            alert("Omborxona zaxirasi muvaffaqiyatli yangilandi!");
+            alert("Omborxona muvaffaqiyatli saqlandi!");
         }
 
-        function deleteIngredient(id) {
-            if (confirm("Ushbu xomashyoni o'chirmoqchimisiz?")) {
+        function editWarehouseItem(id) {
+            const item = warehouseData.find(i => i.id === id);
+            if (!item) return;
+
+            document.getElementById('editIngId').value = item.id;
+            document.getElementById('ingName').value = item.name;
+            document.getElementById('ingAmount').value = item.amount;
+            document.getElementById('ingUnit').value = item.unit;
+            document.getElementById('ingCost').value = item.cost || 0;
+            document.getElementById('ingImg').value = item.img;
+
+            document.getElementById('warehouseFormTitle').innerText = "Ombor mahsulotini tahrirlash";
+            document.getElementById('saveIngBtn').innerText = "Yangilash";
+            document.getElementById('cancelIngEditBtn').classList.remove('hidden');
+        }
+
+        function resetWarehouseForm() {
+            document.getElementById('editIngId').value = '';
+            document.getElementById('ingName').value = '';
+            document.getElementById('ingAmount').value = '';
+            document.getElementById('ingCost').value = '';
+            document.getElementById('ingImg').value = '';
+            document.getElementById('warehouseFormTitle').innerText = "Omborga xomashyo yoki suv qo'shish";
+            document.getElementById('saveIngBtn').innerText = "Saqlash";
+            document.getElementById('cancelIngEditBtn').classList.add('hidden');
+        }
+
+        function deleteWarehouseItem(id) {
+            if (confirm("Mahsulotni ombordan o'chirmoqchimisiz?")) {
                 warehouseData = warehouseData.filter(i => i.id !== id);
                 localStorage.setItem('resto_warehouse', JSON.stringify(warehouseData));
                 renderWarehouse();
             }
         }
 
-        // 2. TANNARX VA MENYU REJA
+        // SARFLANISH LOGLARI (STATISTIKA)
+        function renderConsumptionLog() {
+            const tbody = document.getElementById('consumptionLogTable');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            if (consumptionLog.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-gray-400">Hozircha sarflanish tarixi mavjud emas.</td></tr>`;
+                return;
+            }
+
+            consumptionLog.forEach(log => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50 border-b">
+                        <td class="p-2.5 font-bold text-gray-600">${log.time}</td>
+                        <td class="p-2.5 font-bold text-slate-800">${log.dishName}</td>
+                        <td class="p-2.5 text-blue-600 font-semibold">${log.details}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // EXPORT FUNKSIYALARI (EXCEL, WORD, PDF)
+        function exportWarehouseData(type) {
+            if (type === 'excel') {
+                let csv = "Nomi,Qoldiq,Birlik,Narx\n";
+                warehouseData.forEach(i => { csv += `"${i.name}",${i.amount},"${i.unit}",${i.cost}\n`; });
+                let blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+                let link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.download = "omborxona_qoldiqlari.csv";
+                link.click();
+            } else if (type === 'word') {
+                let html = "<html><head><meta charset='utf-8'></head><body><h2>Omborxona Hisoboti</h2><table border='1'><tr><th>Nomi</th><th>Qoldiq</th><th>Birlik</th><th>Narx</th></tr>";
+                warehouseData.forEach(i => { html += `<tr><td>${i.name}</td><td>${i.amount}</td><td>${i.unit}</td><td>${i.cost}</td></tr>`; });
+                html += "</table></body></html>";
+                let blob = new Blob(['\ufeff' + html], { type: 'application/msword' });
+                let link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.download = "omborxona_hisoboti.doc";
+                link.click();
+            } else if (type === 'pdf') {
+                window.print();
+            }
+        }
+
+        // TANNARX VA MENYU REJA
         function renderAdminMenu() {
             const table = document.getElementById('adminMenuTable');
             if(!table) return;
@@ -526,7 +637,7 @@
             }
         }
 
-        // 3. TO'LOV VA OMBORDAN ANIQ GRAMMLAB AYIRISH
+        // TO'LOV VA OMBORDAN GRAMM/DONALARNI AYIRISH VA STATISTIKAGA YOZISH
         function confirmPayment() {
             const orderId = document.getElementById('payModalOrderRealId').value;
             const tableId = parseInt(document.getElementById('payModalTableId').value);
@@ -536,19 +647,36 @@
                 ord.status = "To'landi";
                 ord.payType = selectedPayTypeVal;
 
-                // Aniq retseptlar bo'yicha omborxonadan grammlab ayirib tashlash
                 ord.items.forEach(item => {
                     const recipe = dishRecipes[item.name];
+                    let logDetailParts = [];
+
                     if (recipe) {
-                        for (const [ingName, gramNeeded] of Object.entries(recipe)) {
+                        for (const [ingName, qtyNeeded] of Object.entries(recipe)) {
                             const warehouseItem = warehouseData.find(w => w.name.toLowerCase() === ingName.toLowerCase());
                             if (warehouseItem) {
-                                warehouseItem.amount = Math.max(0, warehouseItem.amount - gramNeeded);
+                                warehouseItem.amount = Math.max(0, warehouseItem.amount - qtyNeeded);
+                                logDetailParts.push(`${ingName}: -${qtyNeeded} ${warehouseItem.unit}`);
                             }
                         }
+                    } else {
+                        // Agar retsepti bo'lmasa to'g'ridan-to'g'ri donasidan ayiramiz
+                        const warehouseItem = warehouseData.find(w => w.name.toLowerCase() === item.name.toLowerCase());
+                        if (warehouseItem) {
+                            warehouseItem.amount = Math.max(0, warehouseItem.amount - 1);
+                            logDetailParts.push(`${item.name}: -1 dona`);
+                        }
                     }
+
+                    consumptionLog.unshift({
+                        time: new Date().toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+                        dishName: item.name,
+                        details: logDetailParts.join(', ') || "Sarflandi"
+                    });
                 });
+
                 localStorage.setItem('resto_warehouse', JSON.stringify(warehouseData));
+                localStorage.setItem('resto_consumption_log', JSON.stringify(consumptionLog));
             }
 
             const tbl = tablesData.find(t => t.id === tableId);
@@ -562,8 +690,9 @@
             renderAdminOrders();
             renderWaiterOrders();
             renderWarehouse();
+            renderConsumptionLog();
             updateStats();
-            alert("To'lov qabul qilindi va har bir taom uchun sarflangan grammlar ombordan avtomatik ayirildi, stol bo'shatildi!");
+            alert("To'lov qabul qilindi va omborxona zaxiralari avtomatik yangilandi!");
         }
 
         function updateStats() {
@@ -749,7 +878,6 @@
             const u = document.getElementById('loginUser').value.trim();
             const p = document.getElementById('loginPass').value;
 
-            // 3 ta ofitsiant va admin login parollari
             if (u === 'ofitsiant1' && p === '123') { 
                 navigateRole('waiter', 'Ofitsiant 1 (Azamat)'); 
                 closeLoginModal(); 
@@ -763,7 +891,7 @@
                 navigateRole('admin'); 
                 closeLoginModal(); 
             } else { 
-                alert("Login yoki parol xato! Ofitsiantlar uchun: ofitsiant1/123, ofitsiant2/123, ofitsiant3/123. Admin uchun: admin/admin123"); 
+                alert("Login yoki parol xato!"); 
             }
         }
 
@@ -789,7 +917,6 @@
         }
         function filterCategory(cat) { renderCustomerMenu(cat); }
 
-        // Stol rasmi va mijozlar soni bilan render qilish
         function renderTables() {
             const container = document.getElementById('tablesContainer');
             if(!container) return;
@@ -855,7 +982,6 @@
         }
         function removeFromCart(index) { cart.splice(index, 1); updateCartUI(); }
 
-        // Ofitsiant buyurtmani yuborishi va admin panelga uzatish
         function submitWaiterOrder() {
             if (cart.length === 0) return alert("Savat bo'sh!");
             const currentTable = tablesData.find(t => t.id === selectedTableId);
@@ -884,10 +1010,9 @@
             renderWaiterOrders();
             renderAdminOrders();
             updateStats();
-            alert(`Buyurtma ${orderId} (${currentTable.id}-stol) muvaffaqiyatli qabul qilindi va admin panelga yuborildi!`);
+            alert(`Buyurtma ${orderId} (${currentTable.id}-stol) qabul qilindi va admin panelga yuborildi!`);
         }
 
-        // Admin panelida buyurtmalar va ofitsiant ismini ko'rsatish
         function renderAdminOrders() {
             const container = document.getElementById('adminOrdersContainer');
             if(!container) return;
@@ -923,7 +1048,6 @@
             });
         }
 
-        // Ofitsiant chek chiqarish tugmasini bosib adminga to'lov xabarini yuborishi
         function requestBill(orderId) {
             const ord = ordersData.find(o => o.id === orderId);
             if (ord) {
