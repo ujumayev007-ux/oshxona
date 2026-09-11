@@ -44,8 +44,6 @@
 
         <!-- 2. OFITSIANT PANELI -->
         <section id="waiterPage" class="page">
-            
-            <!-- STOLLAR XARITASI (12 TA STOL) -->
             <div class="mb-8">
                 <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
                     <i class="fa-solid fa-chair text-blue-600"></i> Stollar xaritasi va Mijozlar soni
@@ -53,7 +51,6 @@
                 <div id="tablesContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"></div>
             </div>
 
-            <!-- BUYURTMA OLISH BO'LIMI -->
             <div class="bg-white p-4 rounded-2xl shadow-md mb-6 flex flex-wrap gap-4 items-center justify-between border border-blue-100">
                 <div class="flex items-center gap-4">
                     <div class="bg-blue-50 border border-blue-200 px-4 py-2 rounded-xl">
@@ -73,7 +70,6 @@
                 </div>
             </div>
 
-            <!-- SAVAT RO'YXATI -->
             <div id="cartDetails" class="bg-blue-50 border border-blue-200 p-4 rounded-2xl mb-6 hidden">
                 <h4 class="font-bold text-blue-900 mb-2">Tanlangan taomlar:</h4>
                 <div id="cartItemsList" class="flex flex-wrap gap-2 mb-2"></div>
@@ -167,44 +163,35 @@
         </div>
     </div>
 
-    <!-- SCRIPT -->
     <script>
-        // ANIQ VA MOS RASMLAR BILAN MENYU RO'YXATI
         const initialMenu = [
-            // TAOMLAR
             { id: 1, name: "Osh (Palov)", category: "taom", price: 38000, img: "https://images.unsplash.com/photo-1633964913295-ceb43826e7c9?auto=format&fit=crop&w=500&q=80" },
             { id: 2, name: "Shashlik (Mol go'shti)", category: "taom", price: 18000, img: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=500&q=80" },
             { id: 3, name: "Chuchvara", category: "taom", price: 30000, img: "https://images.unsplash.com/photo-1541544741938-0af808871cc0?auto=format&fit=crop&w=500&q=80" },
             { id: 4, name: "Mastava", category: "taom", price: 28000, img: "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=500&q=80" },
             { id: 5, name: "Bifsteks", category: "taom", price: 42000, img: "https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&w=500&q=80" },
-
-            // ICHIMLIKLAR
             { id: 6, name: "Coca Cola 1.5L", category: "ichimlik", price: 14000, img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=500&q=80" },
             { id: 7, name: "Pepsi 1.5L", category: "ichimlik", price: 14000, img: "https://images.unsplash.com/photo-1553456558-aff63285bdd1?auto=format&fit=crop&w=500&q=80" },
             { id: 8, name: "Fanta 1.5L", category: "ichimlik", price: 14000, img: "https://images.unsplash.com/photo-1624517452488-04869289c4ca?auto=format&fit=crop&w=500&q=80" },
             { id: 9, name: "Meva Sharbati (Sok)", category: "ichimlik", price: 16000, img: "https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=500&q=80" },
-
-            // SALATLAR
             { id: 10, name: "Achichuk (Shakarob)", category: "salat", price: 12000, img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=500&q=80" },
             { id: 11, name: "Olivie Salati", category: "salat", price: 18000, img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=500&q=80" },
             { id: 12, name: "Yashil Grek Salati", category: "salat", price: 22000, img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=500&q=80" }
         ];
 
-        // VERSINYA NAZORATI - KESHNI YANGILASH UCHUN
-        const CURRENT_VERSION = "v3.0";
-        if (localStorage.getItem('resto_ver') !== CURRENT_VERSION) {
-            localStorage.setItem('resto_menu', JSON.stringify(initialMenu));
-            localStorage.setItem('resto_ver', CURRENT_VERSION);
+        // MA'LUMOTLARNI TEKSHIRISH VA KESHNI NOLGA TUSHIRISH
+        let menuData = JSON.parse(localStorage.getItem('resto_menu'));
+        if (!menuData || !Array.isArray(menuData) || menuData.length === 0) {
+            menuData = initialMenu;
+            localStorage.setItem('resto_menu', JSON.stringify(menuData));
         }
 
-        // STOLLAR RO'YXATI (12 TA STOL)
         let tablesData = JSON.parse(localStorage.getItem('resto_tables')) || Array.from({ length: 12 }, (_, i) => ({
             id: i + 1,
             guests: 2,
-            status: 'bo'sh'
+            status: 'bo\'sh'
         }));
 
-        let menuData = JSON.parse(localStorage.getItem('resto_menu')) || initialMenu;
         let ordersData = JSON.parse(localStorage.getItem('resto_orders')) || [];
         let selectedTableId = 1;
         let cart = [];
@@ -219,9 +206,9 @@
             renderWaiterOrders();
         });
 
-        // 12 TA STOLNI CHIZISH
         function renderTables() {
             const container = document.getElementById('tablesContainer');
+            if(!container) return;
             container.innerHTML = '';
 
             tablesData.forEach(tbl => {
@@ -236,7 +223,6 @@
                             ${isBusy ? 'Band' : "Bo'sh"}
                         </span>
                         
-                        <!-- Mijoz soni boshqaruvi -->
                         <div class="mt-3 flex items-center justify-center gap-2 bg-gray-100 p-1.5 rounded-xl" onclick="event.stopPropagation()">
                             <button onclick="changeGuests(${tbl.id}, -1)" class="w-6 h-6 bg-white rounded-lg font-bold text-gray-700 shadow flex items-center justify-center hover:bg-gray-200">-</button>
                             <span class="text-xs font-bold text-slate-800">${tbl.guests} kishi</span>
@@ -266,12 +252,13 @@
         function updateSelectedTableInfo() {
             const currentTbl = tablesData.find(t => t.id === selectedTableId);
             if (currentTbl) {
-                document.getElementById('selectedTableLabel').innerText = `${currentTbl.id}-Stol`;
-                document.getElementById('selectedGuestsLabel').innerText = `${currentTbl.guests} kishi`;
+                const tableLbl = document.getElementById('selectedTableLabel');
+                const guestLbl = document.getElementById('selectedGuestsLabel');
+                if(tableLbl) tableLbl.innerText = `${currentTbl.id}-Stol`;
+                if(guestLbl) guestLbl.innerText = `${currentTbl.guests} kishi`;
             }
         }
 
-        // NAVIGATSIYA
         function navigateRole(role) {
             currentUserRole = role;
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -312,11 +299,12 @@
             else alert("Login yoki parol xato!");
         }
 
-        // MIJOZ MENYU
         function renderCustomerMenu(category) {
             const container = document.getElementById('customerMenuContainer');
+            if(!container) return;
             container.innerHTML = '';
             const filtered = category === 'all' ? menuData : menuData.filter(i => i.category === category);
+            
             filtered.forEach(item => {
                 container.innerHTML += `
                     <div class="bg-white rounded-2xl shadow-md overflow-hidden flex flex-col justify-between hover:shadow-lg transition">
@@ -335,9 +323,9 @@
 
         function filterCategory(cat) { renderCustomerMenu(cat); }
 
-        // OFITSIANT
         function renderWaiterMenu() {
             const container = document.getElementById('waiterMenuContainer');
+            if(!container) return;
             container.innerHTML = '';
             menuData.forEach(item => {
                 container.innerHTML += `
@@ -359,8 +347,10 @@
 
         function addToCart(id) {
             const item = menuData.find(i => i.id === id);
-            cart.push(item);
-            updateCartUI();
+            if(item) {
+                cart.push(item);
+                updateCartUI();
+            }
         }
 
         function updateCartUI() {
@@ -412,7 +402,6 @@
             ordersData.unshift(newOrder);
             localStorage.setItem('resto_orders', JSON.stringify(ordersData));
 
-            // Stol holatini 'band' qilish
             currentTable.status = 'band';
             localStorage.setItem('resto_tables', JSON.stringify(tablesData));
 
@@ -426,6 +415,7 @@
 
         function renderWaiterOrders() {
             const container = document.getElementById('waiterOrdersList');
+            if(!container) return;
             container.innerHTML = '';
 
             if (ordersData.length === 0) {
@@ -454,9 +444,9 @@
             });
         }
 
-        // ADMIN PANELI - EDIT (TAHRIRLASH) VA BOSHQARUV
         function renderAdminMenu() {
             const table = document.getElementById('adminMenuTable');
+            if(!table) return;
             table.innerHTML = '';
             menuData.forEach(item => {
                 table.innerHTML += `
@@ -487,10 +477,8 @@
             const img = document.getElementById('prodImg').value;
 
             if (editId) {
-                // TAHRIRLASH (EDIT)
                 menuData = menuData.map(p => p.id == editId ? { id: Number(editId), name, category, price, img } : p);
             } else {
-                // YANGI QO'SHISH
                 menuData.push({ id: Date.now(), name, category, price, img });
             }
 
@@ -538,6 +526,7 @@
 
         function renderAdminOrders() {
             const container = document.getElementById('adminOrdersContainer');
+            if(!container) return;
             container.innerHTML = '';
 
             if (ordersData.length === 0) {
