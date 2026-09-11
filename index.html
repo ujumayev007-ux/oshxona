@@ -172,8 +172,6 @@
             <div id="warehouseManageTab" class="hidden">
                 <div class="bg-white p-6 rounded-2xl shadow-md mb-8 border border-gray-100">
                     <h3 id="warehouseFormTitle" class="text-lg font-bold mb-4">Omborga mahsulot qo'shish (Qidirish yoki Yangi kiritish)</h3>
-                    
-                    <!-- QIDIRISH VA TANLASH USULI -->
                     <div class="mb-4 relative">
                         <label class="block text-xs font-bold text-gray-500 mb-1">Mavjud ombor mahsulotlaridan qidirib qo'shish:</label>
                         <input type="text" id="warehouseSearchInput" placeholder="Mahsulot nomini yozib qidiring (masalan: Guruch, Cola)..." oninput="handleWarehouseSearchInput(this.value)" class="w-full p-3 border rounded-xl text-sm bg-blue-50/30">
@@ -196,13 +194,10 @@
                             <button type="button" onclick="resetWarehouseForm()" id="cancelIngEditBtn" class="bg-gray-400 text-white font-bold py-2.5 px-3 rounded-xl hidden">X</button>
                         </div>
                     </form>
-                    
-                    <!-- Agar topilmasa yangi sifatida kiritish eslatmasi -->
                     <div id="newProductNotice" class="mt-3 text-xs text-orange-600 font-bold hidden">
                         ⚠️ Omborda bu nomdagi mahsulot topilmadi. Ma'lumotlarni to'ldirib saqlasangiz, <b>yangi mahsulot</b> sifatida qo'shiladi.
                     </div>
                 </div>
-                <!-- EXPORT TUGMALARI VA STATISTIKA -->
                 <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
                     <h4 class="font-bold text-lg text-slate-800">Omborxona qoldiqlari va sarflanish tarixi</h4>
                     <div class="flex gap-2">
@@ -226,7 +221,6 @@
                         <tbody id="warehouseTable" class="divide-y"></tbody>
                     </table>
                 </div>
-                <!-- SARFLANISH VA SOTUV TARIXI STATISTIKASI -->
                 <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
                     <h4 class="font-bold text-lg mb-4 text-slate-800">Tovar va Ovqatlar Sarflanishi (Kirim-Chiqim tarixi)</h4>
                     <div class="max-h-60 overflow-y-auto">
@@ -245,7 +239,7 @@
             </div>
         </section>
     </main>
-    <!-- MODAL 1: TUSHUM VA FOYDA (WORD, EXCEL, PDF EXPORT BILAN) -->
+    <!-- MODAL 1: TUSHUM VA FOYDA -->
     <div id="tushumModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex justify-center items-center z-50">
         <div class="bg-white p-6 rounded-3xl shadow-2xl w-full max-w-3xl relative">
             <button onclick="closeModal('tushumModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
@@ -276,7 +270,7 @@
             </div>
         </div>
     </div>
-    <!-- MODAL 2: SOTILGAN MAHSULOT (WORD, EXCEL, PDF EXPORT BILAN) -->
+    <!-- MODAL 2: SOTILGAN MAHSULOT -->
     <div id="mahsulotModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex justify-center items-center z-50">
         <div class="bg-white p-6 rounded-3xl shadow-2xl w-full max-w-3xl relative">
             <button onclick="closeModal('mahsulotModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
@@ -384,7 +378,7 @@
             "Gretskiy salat": { "Piyoz": 20 },
             "Coca-Cola 1L": { "Coca-Cola 1L": 1 },
         };
-        const MENU_VERSION = "v17.0_azamat_umid_restaurant";
+        const MENU_VERSION = "v18.0_azamat_umid_restaurant";
         if (localStorage.getItem('resto_version_check') !== MENU_VERSION) {
             localStorage.setItem('resto_menu', JSON.stringify(defaultMenu));
             localStorage.setItem('resto_warehouse', JSON.stringify(defaultWarehouse));
@@ -399,6 +393,8 @@
         let selectedTableId = 1;
         let selectedPayTypeVal = 'Naqd';
         let cart = [];
+        
+        // F5 da rol adashib qolmasligi uchun alohida o'qib olinadi
         let currentUserRole = localStorage.getItem('resto_user_role') || 'customer';
         let currentWaiterName = localStorage.getItem('resto_waiter_name') || '';
 
@@ -412,21 +408,19 @@
             renderConsumptionLog();
             updateStats();
 
-            // Sahifa yuklanganda saqlangan rol bo'yicha sahifani ochish
+            // Sahifa yuklanganda saqlangan aniq rol bo'yicha ochiladi
             navigateRole(currentUserRole, currentWaiterName);
         });
 
-        // 1. STOLGA MIJOZ QO'SHISH (PLUS / MINUS)
         function changeCustomerCount(amount) {
             const currentTable = tablesData.find(t => t.id === selectedTableId);
             if (!currentTable) return;
-            
             currentTable.guests = Math.max(1, currentTable.guests + amount);
             document.getElementById('customerCountInput').value = currentTable.guests;
             localStorage.setItem('resto_tables', JSON.stringify(tablesData));
             renderTables(false);
         }
-        // OMBORXONA BOSHQARUVI VA QIDIRIB QO'SHISH / YANGI QO'SHISH
+
         function renderWarehouse() {
             const tbody = document.getElementById('warehouseTable');
             if (!tbody) return;
@@ -440,22 +434,18 @@
                         <td class="p-3 font-semibold text-gray-500">${item.unit}</td>
                         <td class="p-3 font-extrabold text-green-600">${(item.cost || 0).toLocaleString()} so'm</td>
                         <td class="p-3 text-right space-x-2">
-                            <button onclick="editWarehouseItem(${item.id})" class="bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg font-bold text-xs hover:bg-blue-200">
-                                <i class="fa-solid fa-pen"></i>
-                            </button>
-                            <button onclick="deleteWarehouseItem(${item.id})" class="bg-red-100 text-red-600 px-3 py-1.5 rounded-lg font-bold text-xs hover:bg-red-200">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
+                            <button onclick="editWarehouseItem(${item.id})" class="bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg font-bold text-xs hover:bg-blue-200"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteWarehouseItem(${item.id})" class="bg-red-100 text-red-600 px-3 py-1.5 rounded-lg font-bold text-xs hover:bg-red-200"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
                 `;
             });
         }
+
         function handleWarehouseSearchInput(query) {
             const resultsContainer = document.getElementById('warehouseSearchResults');
             const noticeBox = document.getElementById('newProductNotice');
             const nameInput = document.getElementById('ingName');
-            
             resultsContainer.innerHTML = '';
             if (!query.trim()) {
                 resultsContainer.classList.add('hidden');
@@ -477,9 +467,10 @@
             } else {
                 resultsContainer.classList.add('hidden');
                 noticeBox.classList.remove('hidden');
-                nameInput.value = query; // Yangi mahsulot nomi sifatida avtomatik yoziladi
+                nameInput.value = query;
             }
         }
+
         function selectWarehouseExistingItem(item) {
             document.getElementById('warehouseSearchInput').value = item.name;
             document.getElementById('ingName').value = item.name;
@@ -488,13 +479,13 @@
             document.getElementById('ingCost').value = item.cost;
             document.getElementById('ingImg').value = item.img;
             document.getElementById('editIngId').value = item.id;
-            
             document.getElementById('warehouseSearchResults').classList.add('hidden');
             document.getElementById('newProductNotice').classList.add('hidden');
             document.getElementById('warehouseFormTitle').innerText = `'${item.name}' miqdorini to'ldirish (Qo'shish)`;
             document.getElementById('saveIngBtn').innerText = "Miqdorini qo'shish";
             document.getElementById('cancelIngEditBtn').classList.remove('hidden');
         }
+
         function saveIngredient(e) {
             e.preventDefault();
             const editId = document.getElementById('editIngId').value;
@@ -504,10 +495,7 @@
             const unit = document.getElementById('ingUnit').value;
             const cost = parseFloat(document.getElementById('ingCost').value) || 0;
             const img = document.getElementById('ingImg').value || "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=200&q=80";
-            if (!name) {
-                alert("Mahsulot nomini kiriting!");
-                return;
-            }
+            if (!name) return alert("Mahsulot nomini kiriting!");
             if (editId) {
                 warehouseData = warehouseData.map(i => i.id == editId ? { ...i, name, amount: i.amount + amount, unit, cost, img } : i);
             } else {
@@ -525,6 +513,7 @@
             renderWarehouse();
             alert("Omborxona muvaffaqiyatli saqlandi!");
         }
+
         function editWarehouseItem(id) {
             const item = warehouseData.find(i => i.id === id);
             if (!item) return;
@@ -539,6 +528,7 @@
             document.getElementById('saveIngBtn').innerText = "Yangilash";
             document.getElementById('cancelIngEditBtn').classList.remove('hidden');
         }
+
         function resetWarehouseForm() {
             document.getElementById('editIngId').value = '';
             document.getElementById('warehouseSearchInput').value = '';
@@ -552,6 +542,7 @@
             document.getElementById('saveIngBtn').innerText = "Saqlash";
             document.getElementById('cancelIngEditBtn').classList.add('hidden');
         }
+
         function deleteWarehouseItem(id) {
             if (confirm("Mahsulotni ombordan o'chirmoqchimisiz?")) {
                 warehouseData = warehouseData.filter(i => i.id !== id);
@@ -559,7 +550,7 @@
                 renderWarehouse();
             }
         }
-        // SARFLANISH LOGLARI (STATISTIKA)
+
         function renderConsumptionLog() {
             const tbody = document.getElementById('consumptionLogTable');
             if (!tbody) return;
@@ -578,7 +569,7 @@
                 `;
             });
         }
-        // EXPORT FUNKSIYALARI (EXCEL, WORD, PDF)
+
         function exportWarehouseData(type) {
             if (type === 'excel') {
                 let csv = "Nomi,Qoldiq,Birlik,Narx\n";
@@ -601,7 +592,7 @@
                 window.print();
             }
         }
-        // 2. ADMIN PANELIDAGI TUSHUM VA FOYDALARNI WORD, EXCEL, PDF GA CHOP ETISH
+
         function exportReportData(type, reportType) {
             let tableId = reportType === 'tushum' ? 'tushumReportTable' : 'mahsulotReportTable';
             let fileName = reportType === 'tushum' ? 'tushum_va_foyda_hisoboti' : 'sotilgan_mahsulotlar_analitikasi';
@@ -635,7 +626,7 @@
                 win.print();
             }
         }
-        // TANNARX VA MENYU REJA
+
         function renderAdminMenu() {
             const table = document.getElementById('adminMenuTable');
             if(!table) return;
@@ -651,17 +642,14 @@
                         <td class="p-3 font-extrabold text-green-600">${item.price.toLocaleString()} so'm</td>
                         <td class="p-3 font-black text-blue-600">+${profit.toLocaleString()} so'm</td>
                         <td class="p-3 text-right space-x-2">
-                            <button onclick="editProduct(${item.id})" class="bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg font-bold text-xs hover:bg-blue-200">
-                                <i class="fa-solid fa-pen"></i>
-                            </button>
-                            <button onclick="deleteProduct(${item.id})" class="bg-red-100 text-red-600 px-3 py-1.5 rounded-lg font-bold text-xs hover:bg-red-200">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
+                            <button onclick="editProduct(${item.id})" class="bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg font-bold text-xs hover:bg-blue-200"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteProduct(${item.id})" class="bg-red-100 text-red-600 px-3 py-1.5 rounded-lg font-bold text-xs hover:bg-red-200"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
                 `;
             });
         }
+
         function saveProduct(e) {
             e.preventDefault();
             const editId = document.getElementById('editProductId').value;
@@ -681,6 +669,7 @@
             renderCustomerMenu('all');
             renderWaiterMenu();
         }
+
         function editProduct(id) {
             const prod = menuData.find(p => p.id === id);
             if (!prod) return;
@@ -694,6 +683,7 @@
             document.getElementById('saveBtn').innerText = "Yangilash";
             document.getElementById('cancelEditBtn').classList.remove('hidden');
         }
+
         function resetForm() {
             document.getElementById('editProductId').value = '';
             document.getElementById('prodName').value = '';
@@ -704,6 +694,7 @@
             document.getElementById('saveBtn').innerText = "Saqlash";
             document.getElementById('cancelEditBtn').classList.add('hidden');
         }
+
         function deleteProduct(id) {
             if (confirm("Mahsulotni o'chirmoqchimisiz?")) {
                 menuData = menuData.filter(p => p.id !== id);
@@ -713,7 +704,7 @@
                 renderWaiterMenu();
             }
         }
-        // TO'LOV VA OMBORDAN GRAMM/DONALARNI AYIRISH VA STATISTIKAGA YOZISH
+
         function confirmPayment() {
             const orderId = document.getElementById('payModalOrderRealId').value;
             const tableId = parseInt(document.getElementById('payModalTableId').value);
@@ -759,17 +750,16 @@
             renderWarehouse();
             renderConsumptionLog();
             updateStats();
-            alert("To'lov qabul qilindi va omborxona zaxiralari avtomatik yangilandi!");
+            alert("To'lov qabul qilindi va ofitsiant paneliga xabar berildi!");
         }
+
         function updateStats() {
             const paidOrders = ordersData.filter(o => o.status === "To'landi");
             let totalRev = 0;
             let totalCost = 0;
             paidOrders.forEach(o => {
                 totalRev += o.total;
-                o.items.forEach(i => {
-                    totalCost += (i.cost || 0);
-                });
+                o.items.forEach(i => { totalCost += (i.cost || 0); });
             });
             const netProfit = totalRev - totalCost;
             const itemsSold = paidOrders.reduce((sum, o) => sum + o.items.length, 0);
@@ -785,6 +775,7 @@
             document.getElementById('statPayCard').innerText = cardTotal.toLocaleString() + " so'm";
             document.getElementById('statPayTransfer').innerText = transferTotal.toLocaleString() + " so'm";
         }
+
         function renderTushumModalDetails() {
             const tbody = document.getElementById('tushumModalTableBody');
             tbody.innerHTML = '';
@@ -808,6 +799,7 @@
                 `;
             });
         }
+
         function renderMahsulotModalDetails() {
             const tbody = document.getElementById('mahsulotModalTableBody');
             tbody.innerHTML = '';
@@ -820,12 +812,7 @@
                         productSummary[item.name].count += 1;
                         productSummary[item.name].totalProfit += (item.price - cost);
                     } else {
-                        productSummary[item.name] = {
-                            cost: cost,
-                            price: item.price,
-                            count: 1,
-                            totalProfit: (item.price - cost)
-                        };
+                        productSummary[item.name] = { cost: cost, price: item.price, count: 1, totalProfit: (item.price - cost) };
                     }
                 });
             });
@@ -847,12 +834,14 @@
                 `;
             });
         }
+
         function openModal(id) {
             if(id === 'tushumModal') renderTushumModalDetails();
             if(id === 'mahsulotModal') renderMahsulotModalDetails();
             document.getElementById(id).classList.remove('hidden');
         }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+        
         function openPaymentModal(orderId, tableId, total) {
             document.getElementById('payModalOrderId').innerText = orderId;
             document.getElementById('payModalTotal').innerText = total.toLocaleString();
@@ -862,6 +851,7 @@
             document.getElementById('paymentModal').classList.remove('hidden');
         }
         function closePaymentModal() { document.getElementById('paymentModal').classList.add('hidden'); }
+        
         function selectPayType(type) {
             selectedPayTypeVal = type;
             document.querySelectorAll('.pay-type-btn').forEach(btn => btn.className = "pay-type-btn p-3 rounded-xl border-2 font-bold text-xs border-gray-200 text-gray-600");
@@ -869,6 +859,7 @@
             if(type === 'Plastik') document.getElementById('payTypeCard').className = "pay-type-btn p-3 rounded-xl border-2 font-bold text-xs border-blue-600 bg-blue-50 text-blue-700";
             if(type === 'O\'tkazma') document.getElementById('payTypeTransfer').className = "pay-type-btn p-3 rounded-xl border-2 font-bold text-xs border-purple-600 bg-purple-50 text-purple-700";
         }
+
         function switchAdminTab(tab) {
             document.getElementById('ordersNavTab').classList.add('hidden');
             document.getElementById('menuManageTab').classList.add('hidden');
@@ -887,33 +878,39 @@
                 document.getElementById('tabWarehouseBtn').className = "py-2 px-4 border-b-2 border-blue-600 font-bold text-blue-600 whitespace-nowrap";
             }
         }
+
         function navigateRole(role, waiterName = '') {
             currentUserRole = role;
-            currentWaiterName = waiterName;
+            if (role !== 'customer') {
+                currentWaiterName = waiterName || currentWaiterName;
+            } else {
+                currentWaiterName = '';
+            }
 
-            // Rolni va ofitsiant nomini xotiraga saqlab qo'yamiz (F5 bosganda yo'qolmasligi uchun)
-            localStorage.setItem('resto_user_role', role);
-            localStorage.setItem('resto_waiter_name', waiterName);
+            // F5 bosganda rol adashib qolmasligi uchun aniq saqlanadi
+            localStorage.setItem('resto_user_role', currentUserRole);
+            localStorage.setItem('resto_waiter_name', currentWaiterName);
 
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             const badge = document.getElementById('roleBadge');
             const authBtn = document.getElementById('authBtn');
             const waiterLabel = document.getElementById('activeWaiterName');
-            if (role === 'customer') {
+
+            if (currentUserRole === 'customer') {
                 document.getElementById('customerPage').classList.add('active');
                 badge.innerText = "Mijoz";
                 badge.className = "bg-yellow-500 text-slate-900 text-xs font-bold px-2.5 py-1 rounded-full";
                 authBtn.innerHTML = `<i class="fa-solid fa-right-to-bracket mr-1"></i> Tizimga kirish`;
                 waiterLabel.classList.add('hidden');
-            } else if (role === 'waiter') {
+            } else if (currentUserRole === 'waiter') {
                 document.getElementById('waiterPage').classList.add('active');
                 badge.innerText = "Ofitsiant";
                 badge.className = "bg-blue-500 text-white text-xs font-bold px-2.5 py-1 rounded-full";
                 authBtn.innerHTML = `<i class="fa-solid fa-right-from-bracket mr-1"></i> Chiqish`;
-                waiterLabel.innerText = `👤 ${waiterName}`;
+                waiterLabel.innerText = `👤 ${currentWaiterName}`;
                 waiterLabel.classList.remove('hidden');
                 renderWaiterOrders();
-            } else if (role === 'admin') {
+            } else if (currentUserRole === 'admin') {
                 document.getElementById('adminPage').classList.add('active');
                 badge.innerText = "Administrator";
                 badge.className = "bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full";
@@ -922,9 +919,11 @@
                 renderAdminOrders();
             }
         }
+
         function openLoginModal() { 
             if (currentUserRole !== 'customer') { 
                 navigateRole('customer'); 
+                location.reload();
             } else { 
                 document.getElementById('loginModal').classList.remove('hidden'); 
             } 
@@ -951,6 +950,7 @@
                 alert("Login yoki parol xato!"); 
             }
         }
+
         function renderCustomerMenu(category) {
             const container = document.getElementById('customerMenuContainer');
             if(!container) return;
@@ -972,6 +972,7 @@
             });
         }
         function filterCategory(cat) { renderCustomerMenu(cat); }
+
         function renderTables(updateInput = true) {
             const container = document.getElementById('tablesContainer');
             if(!container) return;
@@ -992,18 +993,13 @@
             });
             const tableLbl = document.getElementById('selectedTableLabel');
             if(tableLbl) tableLbl.innerText = `${selectedTableId}-Stol`;
-            
             if (updateInput) {
                 const currentTbl = tablesData.find(t => t.id === selectedTableId);
-                if (currentTbl) {
-                    document.getElementById('customerCountInput').value = currentTbl.guests;
-                }
+                if (currentTbl) document.getElementById('customerCountInput').value = currentTbl.guests;
             }
         }
-        function selectTable(id) { 
-            selectedTableId = id; 
-            renderTables(true); 
-        }
+        function selectTable(id) { selectedTableId = id; renderTables(true); }
+
         function renderWaiterMenu() {
             const container = document.getElementById('waiterMenuContainer');
             if(!container) return;
@@ -1023,10 +1019,12 @@
                 `;
             });
         }
+
         function addToCart(id) {
             const item = menuData.find(i => i.id === id);
             if(item) { cart.push(item); updateCartUI(); }
         }
+
         function updateCartUI() {
             document.getElementById('cartCount').innerText = cart.length;
             const details = document.getElementById('cartDetails');
@@ -1044,6 +1042,7 @@
             } else details.classList.add('hidden');
         }
         function removeFromCart(index) { cart.splice(index, 1); updateCartUI(); }
+
         function submitWaiterOrder() {
             if (cart.length === 0) return alert("Savat bo'sh!");
             const currentTable = tablesData.find(t => t.id === selectedTableId);
@@ -1056,7 +1055,7 @@
                 waiter: currentWaiterName || "Ofitsiant",
                 items: [...cart],
                 total: totalSum,
-                status: 'Yangi',
+                status: 'Kutilmoqda', // Dastlabki holat
                 payType: null,
                 time: new Date().toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })
             });
@@ -1069,20 +1068,34 @@
             renderWaiterOrders();
             renderAdminOrders();
             updateStats();
-            alert(`Buyurtma ${orderId} (${currentTable.id}-stol) qabul qilindi va admin panelga yuborildi!`);
+            alert(`Buyurtma ${orderId} (${currentTable.id}-stol) qabul qilindi!`);
         }
+
+        // Ofitsiant chek bosganda admin paneliga to'lov qabul qilishga o'tadi
+        function requestBill(orderId) {
+            const ord = ordersData.find(o => o.id === orderId);
+            if (ord) {
+                ord.status = "Chek chiqarildi (To'lov kutilmoqda)";
+                localStorage.setItem('resto_orders', JSON.stringify(ordersData));
+                renderWaiterOrders();
+                renderAdminOrders();
+                alert(`Chek chiqarildi va Adminga to'lov uchun yuborildi!`);
+            }
+        }
+
         function renderAdminOrders() {
             const container = document.getElementById('adminOrdersContainer');
             if(!container) return;
             container.innerHTML = '';
-            
             if (ordersData.length === 0) {
                 container.innerHTML = `<p class="text-gray-400 text-sm">Hozircha buyurtmalar yo'q.</p>`;
                 return;
             }
             ordersData.forEach(ord => {
+                const isBillRequested = ord.status.includes("Chek chiqarildi");
+                const isPaid = ord.status === "To'landi";
                 container.innerHTML += `
-                    <div class="bg-white p-5 rounded-2xl shadow-md border-l-4 ${ord.status === "To'landi" ? 'border-green-500' : 'border-yellow-500'}">
+                    <div class="bg-white p-5 rounded-2xl shadow-md border-l-4 ${isPaid ? 'border-green-500' : (isBillRequested ? 'border-blue-500' : 'border-yellow-500')}">
                         <div class="flex justify-between items-start mb-2">
                             <span class="font-extrabold text-lg text-slate-800">${ord.id} (${ord.table}-stol, ${ord.guests}kishi)</span>
                             <span class="text-xs font-bold px-2 py-1 rounded bg-gray-100">${ord.status}</span>
@@ -1095,36 +1108,32 @@
                             <span class="text-xs text-gray-400">${ord.time}</span>
                             <span class="text-green-600 text-base">${ord.total.toLocaleString()} so'm</span>
                         </div>
-                        ${ord.status !== "To'landi" ? `
-                            <button onclick="openPaymentModal('${ord.id}', ${ord.table}, ${ord.total})" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-lg text-xs">
-                                💳 To'lovni olish va Stolni bo'shatish
+                        ${isPaid ? `
+                            <div class="text-center bg-green-50 text-green-700 py-1.5 rounded-lg text-xs font-bold">To'langan (${ord.payType})</div>
+                        ` : (isBillRequested ? `
+                            <button onclick="openPaymentModal('${ord.id}', ${ord.table}, ${ord.total})" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-lg text-xs shadow">
+                                💳 To'lovni tasdiqlash va Stolni bo'shatish
                             </button>
-                        ` : `<div class="text-center bg-green-50 text-green-700 py-1 rounded-lg text-xs font-bold">To'langan (${ord.payType})</div>`}
+                        ` : `
+                            <div class="text-center bg-yellow-50 text-yellow-700 py-1.5 rounded-lg text-xs font-bold">Ofitsiant chek chiqarishi kutilmoqda...</div>
+                        `)}
                     </div>
                 `;
             });
         }
-        function requestBill(orderId) {
-            const ord = ordersData.find(o => o.id === orderId);
-            if (ord) {
-                ord.status = "Chek chiqarildi (To'lov kutilmoqda)";
-                localStorage.setItem('resto_orders', JSON.stringify(ordersData));
-                renderWaiterOrders();
-                renderAdminOrders();
-                alert(`Chek chiqarildi va Adminga to'lov uchun xabar yuborildi!`);
-            }
-        }
+
         function renderWaiterOrders() {
             const container = document.getElementById('waiterOrdersList');
             if(!container) return;
             container.innerHTML = '';
-            
             const myOrders = ordersData.filter(ord => ord.waiter === currentWaiterName || currentUserRole === 'waiter');
             if (myOrders.length === 0) {
                 container.innerHTML = `<p class="text-xs text-gray-400">Sizda hozircha buyurtmalar yo'q.</p>`;
                 return;
             }
             myOrders.forEach(ord => {
+                const isPaid = ord.status === "To'landi";
+                const isBillRequested = ord.status.includes("Chek chiqarildi");
                 container.innerHTML += `
                     <div class="bg-white p-4 rounded-xl shadow-sm border mb-3">
                         <div class="flex justify-between items-center mb-2">
@@ -1133,11 +1142,15 @@
                         </div>
                         <div class="text-xs text-gray-500 mb-2">Ofitsiant: <b>${ord.waiter}</b></div>
                         <div class="font-bold text-sm text-right text-green-700 mb-3">${ord.total.toLocaleString()} so'm</div>
-                        ${ord.status !== "To'landi" && !ord.status.includes("Chek chiqarildi") ? `
-                            <button onclick="requestBill('${ord.id}')" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 rounded-lg text-xs transition">
-                                🖨️ Chek chiqarish va to'lovga berish
+                        ${isPaid ? `
+                            <div class="text-center bg-green-50 text-green-700 py-1.5 rounded text-xs font-bold">To'lov qilindi (Stol bo'shatildi)</div>
+                        ` : (isBillRequested ? `
+                            <div class="text-center bg-blue-50 text-blue-700 py-1.5 rounded text-xs font-bold">Admin tasdiqi kutilmoqda...</div>
+                        ` : `
+                            <button onclick="requestBill('${ord.id}')" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 rounded-lg text-xs transition shadow">
+                                🖨️ Chek chiqarish va Adminga yuborish
                             </button>
-                        ` : `<div class="text-center bg-blue-50 text-blue-700 py-1 rounded text-xs font-bold">Admin tasdiqi kutilmoqda</div>`}
+                        `)}
                     </div>
                 `;
             });
