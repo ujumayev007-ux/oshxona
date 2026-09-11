@@ -164,27 +164,44 @@
     </div>
 
     <script>
-        const initialMenu = [
-            { id: 1, name: "Osh (Palov)", category: "taom", price: 38000, img: "https://images.unsplash.com/photo-1633964913295-ceb43826e7c9?auto=format&fit=crop&w=500&q=80" },
-            { id: 2, name: "Shashlik (Mol go'shti)", category: "taom", price: 18000, img: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=500&q=80" },
-            { id: 3, name: "Chuchvara", category: "taom", price: 30000, img: "https://images.unsplash.com/photo-1541544741938-0af808871cc0?auto=format&fit=crop&w=500&q=80" },
-            { id: 4, name: "Mastava", category: "taom", price: 28000, img: "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=500&q=80" },
-            { id: 5, name: "Bifsteks", category: "taom", price: 42000, img: "https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&w=500&q=80" },
-            { id: 6, name: "Coca Cola 1.5L", category: "ichimlik", price: 14000, img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=500&q=80" },
-            { id: 7, name: "Pepsi 1.5L", category: "ichimlik", price: 14000, img: "https://images.unsplash.com/photo-1553456558-aff63285bdd1?auto=format&fit=crop&w=500&q=80" },
-            { id: 8, name: "Fanta 1.5L", category: "ichimlik", price: 14000, img: "https://images.unsplash.com/photo-1624517452488-04869289c4ca?auto=format&fit=crop&w=500&q=80" },
-            { id: 9, name: "Meva Sharbati (Sok)", category: "ichimlik", price: 16000, img: "https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=500&q=80" },
-            { id: 10, name: "Achichuk (Shakarob)", category: "salat", price: 12000, img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=500&q=80" },
-            { id: 11, name: "Olivie Salati", category: "salat", price: 18000, img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=500&q=80" },
-            { id: 12, name: "Yashil Grek Salati", category: "salat", price: 22000, img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=500&q=80" }
+        // SIZ YUBORGAN ANIQ MENYU VA NARXLAR
+        const defaultMenu = [
+            // TAOMLAR
+            { id: 1, name: "Osh", category: "taom", price: 40000, img: "https://images.unsplash.com/photo-1633964913295-ceb43826e7c9?auto=format&fit=crop&w=500&q=80" },
+            { id: 2, name: "Chuchvara", category: "taom", price: 30000, img: "https://images.unsplash.com/photo-1541544741938-0af808871cc0?auto=format&fit=crop&w=500&q=80" },
+            { id: 3, name: "Mastava", category: "taom", price: 30000, img: "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=500&q=80" },
+            { id: 4, name: "Bifsteks", category: "taom", price: 45000, img: "https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&w=500&q=80" },
+            { id: 5, name: "Bifstrogonov", category: "taom", price: 50000, img: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=500&q=80" },
+
+            // ICHIMLIKLAR
+            { id: 6, name: "Coca Cola 0.5 L", category: "ichimlik", price: 8000, img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=500&q=80" },
+            { id: 7, name: "Coca Cola 1.0 L", category: "ichimlik", price: 13000, img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=500&q=80" },
+            { id: 8, name: "Coca Cola 0.33 L", category: "ichimlik", price: 12000, img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=500&q=80" },
+            { id: 9, name: "Coca Cola (shishalik)", category: "ichimlik", price: 6000, img: "https://images.unsplash.com/photo-1554866585-cd94860890b7?auto=format&fit=crop&w=500&q=80" },
+            { id: 10, name: "Pepsi 0.5 L", category: "ichimlik", price: 8000, img: "https://images.unsplash.com/photo-1629203851122-3726ecdf080e?auto=format&fit=crop&w=500&q=80" },
+            { id: 11, name: "Pepsi 1.0 L", category: "ichimlik", price: 13000, img: "https://images.unsplash.com/photo-1629203851122-3726ecdf080e?auto=format&fit=crop&w=500&q=80" },
+            { id: 12, name: "Pepsi 0.33 L", category: "ichimlik", price: 12000, img: "https://images.unsplash.com/photo-1629203851122-3726ecdf080e?auto=format&fit=crop&w=500&q=80" },
+            { id: 13, name: "Fanta 0.5 L", category: "ichimlik", price: 8000, img: "https://images.unsplash.com/photo-1624517452488-04869289c4ca?auto=format&fit=crop&w=500&q=80" },
+            { id: 14, name: "Fanta 1.0 L", category: "ichimlik", price: 13000, img: "https://images.unsplash.com/photo-1624517452488-04869289c4ca?auto=format&fit=crop&w=500&q=80" },
+            { id: 15, name: "Fanta 0.33 L", category: "ichimlik", price: 12000, img: "https://images.unsplash.com/photo-1624517452488-04869289c4ca?auto=format&fit=crop&w=500&q=80" },
+            { id: 16, name: "Fanta (shishalik)", category: "ichimlik", price: 6000, img: "https://images.unsplash.com/photo-1624517452488-04869289c4ca?auto=format&fit=crop&w=500&q=80" },
+            { id: 17, name: "Olcha kompot 1L", category: "ichimlik", price: 14000, img: "https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=500&q=80" },
+            { id: 18, name: "O'rik kompot 1L", category: "ichimlik", price: 14000, img: "https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=500&q=80" },
+
+            // SALATLAR
+            { id: 19, name: "Shakarob", category: "salat", price: 12000, img: "https://images.unsplash.com/photo-1592417817098-8f3d6eb19757?auto=format&fit=crop&w=500&q=80" },
+            { id: 20, name: "Olivie", category: "salat", price: 15000, img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=500&q=80" },
+            { id: 21, name: "Muşskoy Kapriz", category: "salat", price: 20000, img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=500&q=80" }
         ];
 
-        // MA'LUMOTLARNI TEKSHIRISH VA KESHNI NOLGA TUSHIRISH
-        let menuData = JSON.parse(localStorage.getItem('resto_menu'));
-        if (!menuData || !Array.isArray(menuData) || menuData.length === 0) {
-            menuData = initialMenu;
-            localStorage.setItem('resto_menu', JSON.stringify(menuData));
+        // YANGI VERSIYA BILAN KESHNI YANGILASH (v6.0)
+        const MENU_VERSION = "v6.0_exact_user_menu";
+        if (localStorage.getItem('resto_version_check') !== MENU_VERSION) {
+            localStorage.setItem('resto_menu', JSON.stringify(defaultMenu));
+            localStorage.setItem('resto_version_check', MENU_VERSION);
         }
+
+        let menuData = JSON.parse(localStorage.getItem('resto_menu')) || defaultMenu;
 
         let tablesData = JSON.parse(localStorage.getItem('resto_tables')) || Array.from({ length: 12 }, (_, i) => ({
             id: i + 1,
@@ -307,7 +324,7 @@
             
             filtered.forEach(item => {
                 container.innerHTML += `
-                    <div class="bg-white rounded-2xl shadow-md overflow-hidden flex flex-col justify-between hover:shadow-lg transition">
+                    <div class="bg-white rounded-2xl shadow-md overflow-hidden flex flex-col justify-between hover:shadow-lg transition border border-gray-100">
                         <img src="${item.img}" class="h-44 w-full object-cover" alt="${item.name}">
                         <div class="p-4 flex-1 flex flex-col justify-between">
                             <div>
